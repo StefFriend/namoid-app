@@ -390,6 +390,19 @@ body.dragging .spare.nodrop{opacity:.4}
 .dhint{pointer-events:none;position:fixed;left:12px;right:12px;top:calc(8px + env(safe-area-inset-top));z-index:49;display:none;align-items:center;gap:10px;padding:12px 14px;border-radius:16px;background:var(--inv);color:var(--invfg);font-size:13.5px;font-weight:600;box-shadow:0 10px 26px rgba(0,0,0,.35);max-width:600px;margin:0 auto}
 .dhint i{width:10px;height:10px;border-radius:5px;background:var(--dc);flex:none}
 body.dragging .dhint{display:flex}
+/* snapshot */
+.psnap{font-size:12px;font-weight:600;color:var(--st);display:flex;align-items:center;gap:6px}
+.psnap i{width:7px;height:7px;border-radius:4px;background:var(--st);box-shadow:0 0 8px var(--st)}
+.fsw.sn .t{background:color-mix(in srgb,var(--st) 10%,transparent);color:var(--st)}
+.fsw.sn .ic{display:flex;gap:3px;flex-wrap:wrap;min-height:16px}
+.fsw.sn .ic svg{width:14px;height:14px;color:var(--faint)}
+.fsw.sn .ic svg.on{color:var(--fg)}
+.fsw.sn.on{--c:var(--st)}
+.fsw.sn.on .ic svg.on{color:var(--st)}
+.sninp{min-height:44px;border-radius:12px;border:1px solid var(--line);background:var(--s3);color:var(--fg);padding:0 12px;font:inherit;font-size:15px;width:100%}
+.lis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}
+.lis button{min-height:40px;border-radius:11px;font-size:12.5px;font-weight:600}
+.lis button.on{background:var(--c);border-color:var(--c);color:var(--onacc)}
 #toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;z-index:40;background:var(--inv);color:var(--invfg);padding:10px 16px;border-radius:14px;font-size:14px;font-weight:500;max-width:88vw;text-align:center;transition:.2s}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
 </style>
@@ -413,7 +426,7 @@ body.dragging .dhint{display:flex}
     </div>
     <div class="phead">
       <button class="round" id="pprev" aria-label="Previous preset"><svg class="i" viewBox="0 0 24 24"><path d="M15 6l-6 6 6 6"/></svg></button>
-      <button class="pname" id="pname" aria-label="Choose a preset"><span class="cap" id="pslot">PRESET</span><b class="ell" id="pnm">–</b></button>
+      <button class="pname" id="pname" aria-label="Choose a preset"><span class="cap" id="pslot">PRESET</span><b class="ell" id="pnm">–</b><span class="psnap hid" id="psnap"></span></button>
       <button class="round" id="pnext" aria-label="Next preset"><svg class="i" viewBox="0 0 24 24"><path d="M9 6l6 6-6 6"/></svg></button>
     </div>
     <div class="card" style="gap:10px">
@@ -421,7 +434,7 @@ body.dragging .dhint{display:flex}
       <div class="strip" id="strip" aria-label="Signal chain summary"></div>
       <div class="legend"><span><span class="mt on" style="--c:var(--fg);width:10px;height:10px;border-radius:3px"></span>on</span><span><span class="mt" style="width:10px;height:10px;border-radius:3px"></span>bypassed</span><span><i style="width:14px;height:6px;border-top:2px solid var(--st);border-bottom:2px solid var(--st)"></i>stereo</span></div>
     </div>
-    <div class="row"><span class="cap sp">Footswitches</span><button class="hbtn" id="fsedit" style="height:32px;min-height:32px">Assign</button></div>
+    <div class="row"><span class="cap sp" id="fscap">Footswitches</span><button class="hbtn" id="fsedit" style="height:32px;min-height:32px">Set up</button></div>
     <div class="fs" id="fs" aria-label="Footswitches"></div>
     <div class="quick">
       <button id="qtun"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 2v7.5a3.5 3.5 0 0 0 7 0V2M12 13v9"/></svg>Tuner</button>
@@ -618,6 +631,7 @@ const IC = {
   radiooff: 'M2 2l20 20M8.5 16.5a5 5 0 0 1 7 0M12 20h.01M5 12.5a10 10 0 0 1 5.2-2.8M2 8.8a15 15 0 0 1 4.2-2.7M16.8 12.4A10 10 0 0 1 19 13.9M22 8.8a15 15 0 0 0-11.2-3.7',
   info: 'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zM12 8v5M12 16h.01',
   trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
+  snap: 'M4 8h3l2-3h6l2 3h3v11H4zM12 10.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 1 0 0-7z',
   move: 'M8 4v16M8 4 5 7M8 4l3 3M16 20V4M16 20l-3-3M16 20l3-3',
   up: 'M6 15l6-6 6 6', down: 'M6 9l6 6 6-6', chev: 'M9 6l6 6-6 6'
 };
@@ -703,26 +717,34 @@ function blockSub(b){
 
 /* invio dei valori: al massimo ~16 richieste al secondo, le piu' recenti vincono */
 function send(k, v){
-  pending[k] = v;
+  pending[k] = v; touched[k] = Date.now();
   if (timer) return;
   timer = setTimeout(flush, 60);
 }
+/* dopo un comando, per un attimo lo stato letto dal pedale non vince sul valore appena impostato:
+   una lettura partita prima del comando lo riportava indietro (blocco acceso, spento, poi di nuovo acceso) */
+const touched = {};
+const GRACE = APP ? 1600 : 900;
+const fresh = k => Date.now() - (touched[k] || 0) < GRACE;
 async function flush(){
   timer = null;
   const items = Object.entries(pending); pending = {};
   for (const [k, v] of items){
     try {
+      touched[k] = Date.now();
       const r = await getj('/api/set?k=' + encodeURIComponent(k) + '&v=' + v);
+      touched[k] = Date.now();
       const p = PK[k];
       if (r.err){ toast(r.err); if (p) { p.v = r.v; refresh(); } }
       if (p && (p.t === 'model' || p.t === 'route' || p.t === 'lane' || k === 'amp2.on')) await reload();
     } catch(e) {}
   }
 }
-function setv(k, v){ const p = PK[k]; if (!p) return; p.v = v; if (/\.on$/.test(k)) { const b = k.split('.')[0]; if (v > 0.5 && useP(b)) useP(b).v = 1; if (v < 0.5) kept.add(b); } send(k, v); refresh(); }
+function setv(k, v){ const p = PK[k]; if (!p) return; p.v = v; touched[k] = Date.now(); if (/\.on$/.test(k)) { const b = k.split('.')[0]; if (v > 0.5 && useP(b)) useP(b).v = 1; if (v < 0.5) kept.add(b); } send(k, v); refresh(); }
 async function setNow(k, v){
   const p = PK[k]; if (!p) return false;
-  try { const r = await getj('/api/set?k=' + encodeURIComponent(k) + '&v=' + v); if (r.err) { toast(r.err); return false; } p.v = r.v; return true; } catch(e) { toast('Not sent: check the connection'); return false; }
+  touched[k] = Date.now();
+  try { const r = await getj('/api/set?k=' + encodeURIComponent(k) + '&v=' + v); touched[k] = Date.now(); if (r.err) { toast(r.err); return false; } p.v = r.v; return true; } catch(e) { toast('Not sent: check the connection'); return false; }
 }
 
 /* ===================== manopola ===================== */
@@ -779,9 +801,10 @@ function bindRange(r, k){
 
 /* ===================== pedali: per ogni tasto A..D i blocchi "Block on/off" su CC 20..23 ===================== */
 function fsGroups(){
-  const g = [0, 1, 2, 3].map(i => ({ key: 'ABCD'[i], cc: 20 + i, blks: [], idx: [] }));
+  const g = [0, 1, 2, 3].map(i => ({ key: 'ABCD'[i], cc: 20 + i, blks: [], idx: [], snap: null, sidx: -1 }));
   if (MD && MD.map) MD.map.forEach((m, i) => {
     if (m && m.a === 0 && m.t === 0 && m.n >= 20 && m.n <= 23 && BLK[m.k]) { const x = g[m.n - 20]; if (!x.blks.includes(m.k)) { x.blks.push(m.k); x.idx.push(i); } }
+    if (m && m.a === 8 && m.t === 0 && m.n >= 20 && m.n <= 23 && hasSnap()) { const x = g[m.n - 20]; x.snap = Math.round(m.v); x.sidx = i; }
   });
   return g;
 }
@@ -806,6 +829,34 @@ async function assignToggle(key, blk){
     }
   } finally { asgBusy = false; renderFs(); refresh(); }
 }
+
+/* ===================== snapshot: 4 varianti di ogni preset (A-D), richiamate dai pedali ===================== */
+/* Uno snapshot ricorda acceso/spento e i parametri dei blocchi nella catena, piu' il mix e le posizioni dei percorsi.
+   Ordine dei blocchi, percorsi, catture e IR restano quelli del preset. Le modifiche entrano nello snapshot attivo. */
+let SN = null;
+const hasSnap = () => !!(SN && Array.isArray(SN.names));
+const snapName = i => (SN && SN.names[i]) || 'Snapshot ' + 'ABCD'[i];
+async function loadSnaps(){ try { const d = await getj('/api/snap'); SN = d && Array.isArray(d.names) ? d : null; refresh(); renderFs(); } catch(e) {} }
+let snapBusy = false;
+async function recallSnap(i){
+  if (!hasSnap() || snapBusy || SN.act === i) return;
+  snapBusy = true;
+  try { const d = await getj('/api/snap?s=' + i); if (d.err) toast(d.err); else { SN = d; if (d.warn) toast(d.warn); await reload(); } } catch(e) { toast('Not sent: check the connection'); }
+  finally { snapBusy = false; }
+}
+async function setFsMode(key, mode){
+  if (!MD) return;
+  const f = fsGroups()['ABCD'.indexOf(key)], k = 'ABCD'.indexOf(key);
+  if (mode === 'snap' && f.snap === null){
+    for (const i of f.idx) await midiApi('/api/mididel?i=' + i);
+    const j = MD.map.findIndex(m => !m);
+    if (j < 0) return toast('MIDI table full: delete a mapping in Setup');
+    await midiApi('/api/midiset?i=' + j + '&t=0&n=' + f.cc + '&m=0&a=8&v=' + k);
+  }
+  if (mode === 'blocks' && f.snap !== null) await midiApi('/api/mididel?i=' + f.sidx);
+  refresh();
+}
+async function allSnaps(){ for (const k of 'ABCD') await setFsMode(k, 'snap'); toast('All four switches recall snapshots'); }
 
 /* ===================== catena: cosa c'e' e in che ordine ===================== */
 /* nella catena: l'ampli sempre; gli altri se accesi o comandati da un pedale (allora in bypass quando spenti) */
@@ -853,15 +904,28 @@ function renderPlay(){
   $('#pslot').textContent = psCur >= 0 && ps ? 'PRESET ' + String(psCur + 1).padStart(2, '0') : 'CURRENT SETTINGS';
   $('#pnm').textContent = ps ? ps.name : 'Unsaved';
   renderStrip();
+  const sn = hasSnap() ? SN.act : -1;
+  $('#psnap').classList.toggle('hid', sn < 0);
+  if (sn >= 0) $('#psnap').innerHTML = '<i></i>Snapshot ' + 'ABCD'[sn] + (SN.names[sn] ? ' · ' + esc(SN.names[sn]) : '');
   const G4 = fsGroups();
+  $('#fscap').textContent = G4.some(f => f.snap !== null) ? 'Footswitches · snapshots' : 'Footswitches';
   const fsH = G4.map(f => {
+    if (f.snap !== null){
+      const i = f.snap, on = sn === i, list = (SN.on && SN.on[i]) || [];
+      const ic = chainParts().all.concat(['amp2']).filter(b => b !== 'amp' && BLK[b] && inChain(b)).map(b => '<svg class="i' + (list.includes(b) ? ' on' : '') + '" viewBox="0 0 24 24" aria-hidden="true"><path d="' + IC[BLK[b].i] + '"/></svg>').join('');
+      return '<button class="fsw sn' + (on ? ' on' : '') + '" data-k="' + f.key + '" data-sn="' + i + '" aria-pressed="' + on + '"><div class="h"><span class="k">' + f.key + '</span><i class="lamp"></i></div>' +
+        '<div class="m"><span class="t">' + svg('snap') + '</span><span class="n"><b class="ell">' + esc(snapName(i)) + '</b><span class="ic">' + ic + '</span></span></div>' +
+        '<span class="s">' + (on ? 'ACTIVE' : 'SNAPSHOT ' + 'ABCD'[i]) + '</span></button>';
+    }
     if (!f.blks.length) return '<button class="fsw empty" data-k="' + f.key + '"><div class="h"><span class="k">' + f.key + '</span><i class="lamp"></i></div><div class="m"><span class="t">' + svg('plus') + '</span><span class="n"><b>Empty</b><span>Tap to assign</span></span></div><span class="s">CC ' + f.cc + '</span></button>';
     const b0 = f.blks[0], on = isOn(b0), multi = f.blks.length > 1;
     return '<button class="fsw' + (on ? ' on' : '') + '" data-k="' + f.key + '" aria-pressed="' + on + '" style="--c:' + cvar(b0) + '"><div class="h"><span class="k">' + f.key + '</span><i class="lamp"></i></div>' +
       '<div class="m"><span class="t">' + svg(BLK[b0].i) + '</span><span class="n"><b class="ell">' + esc(multi ? f.blks.map(b => BLK[b].ab).join(' + ') : BLK[b0].name) + '</b><span class="ell">' + esc(multi ? f.blks.map(short).join(' · ') : short(b0)) + '</span></span></div>' +
       '<span class="s">' + (on ? 'ON' : 'BYPASSED') + '</span></button>';
   }).join('');
-  if (put($('#fs'), fsH)) $('#fs').querySelectorAll('.fsw').forEach(e => e.onclick = () => { const f = fsGroups()['ABCD'.indexOf(e.dataset.k)]; if (f.blks.length) toggleGroup(f.blks); else openFs(e.dataset.k); });
+  if (put($('#fs'), fsH)) $('#fs').querySelectorAll('.fsw').forEach(e => e.onclick = () => {
+    if (e.dataset.sn !== undefined) return recallSnap(+e.dataset.sn);
+    const f = fsGroups()['ABCD'.indexOf(e.dataset.k)]; if (f.blks.length) toggleGroup(f.blks); else openFs(e.dataset.k); });
   const v = PK['out.vol']; if (v && dragging !== 'out.vol'){ const r = $('#vol'); r.min = v.min; r.max = v.max; r.step = v.step; r.value = v.v; rangeFill(r); $('#volv').textContent = fmt(v, v.v); }
 }
 $('#gochain').onclick = () => show('chain');
@@ -964,7 +1028,7 @@ function renderChain(){
   const tip = (D ? 'Hold a block and drag it: into Path 1 or Path 2, or above the split / below the merge to share it.'
     : hasBlk('amp2') ? 'Hold a block and drag it to move it. Drag Amp 2 onto Amp to split into two paths.' : 'Hold a block and drag it to move it.') +
     ' The power button bypasses a block; drag it to "Not in the chain" to remove it.';
-  put($('#ctip'), svg('move') + '<span>' + esc(tip) + '</span>');
+  put($('#ctip'), svg('move') + '<span>' + esc(tip) + (hasSnap() && SN.act >= 0 ? ' Changes go into snapshot ' + 'ABCD'[SN.act] + (SN.names[SN.act] ? ' (' + SN.names[SN.act] + ')' : '') + '.' : '') + '</span>');
   const sp = ADD_ORDER.filter(b => hasBlk(b) && !inChain(b));
   if (put($('#spare'), '<div class="row"><span class="cap sp">Not in the chain</span><button class="hbtn" id="spadd" style="height:32px;min-height:32px">Add</button></div><div class="chips">' +
      '<span class="dzb rm">Drop here to remove</span>' + (sp.map(b => '<button class="sc" style="--c:' + cvar(b) + '" data-sp="' + b + '">' + svg(BLK[b].i) + esc(BLK[b].name) + '</button>').join('') || '<span class="note">Every block is in use.</span>') + '</div>')) {
@@ -1263,6 +1327,7 @@ function renderEditor(){
   E.querySelectorAll('input[type=range][data-r]').forEach(r => { rangeFill(r); bindRange(r, r.dataset.r); });
   E.querySelectorAll('[data-route]').forEach(e => e.onclick = () => { const q = pairOf(b); setv(q[0] + '.par', +e.dataset.route); setTimeout(renderEditor, 50); });
   E.querySelectorAll('[data-lane]').forEach(e => e.onclick = () => { setv(b + '.lane', +e.dataset.lane); setTimeout(renderEditor, 50); });
+  E.querySelectorAll('[data-pm]').forEach(e => e.onclick = () => { setv('amp.pmix', +e.dataset.pm); renderEditor(); });
   const rm = E.querySelector('[data-rm]'); if (rm) rm.onclick = () => removeBlock(b);
 }
 function sliderHTML(k, label, a, m, z, color){
@@ -1280,7 +1345,10 @@ function routeHTML(b){
     if (par) {
       h += '<div class="box">' + sliderHTML(a + '.pmix', 'Balance', 'Only ' + A, amps ? 'Both full' : 'Half and half', 'Only ' + C, col) +
         sliderHTML(a + '.pan1', A + ' position', 'Left', 'Center', 'Right', col) + sliderHTML(a + '.pan2', C + ' position', 'Left', 'Center', 'Right', col) + '</div>';
-      if (amps) h += '<span class="note">Blocks before and after the amps can sit on path 1, path 2, or on both: open a block and pick Routing › Where.</span>';
+      if (amps) { const pm = PK['amp.pmix'] ? Math.round(PK['amp.pmix'].v) : 50;
+        h += '<div class="segw"><span>Listen to</span><div class="lis" style="--c:' + col + '">' + [[0, 'Path 1 only'], [50, 'Both'], [100, 'Path 2 only']].map(([v, n]) => '<button class="' + (pm === v ? 'on' : '') + '" data-pm="' + v + '">' + n + '</button>').join('') + '</div>' +
+          '<span class="note">Instant, without reloading the amps. Save it in a snapshot to switch paths from a footswitch.</span></div>' +
+          '<span class="note">Blocks before and after the amps can sit on path 1, path 2, or on both: open a block and pick Routing › Where.</span>'; }
       else h += '<span class="note">A block switched off passes the dry signal on its side.</span>';
     }
   }
@@ -1345,19 +1413,31 @@ function renderFs(){
   const pst = !MD ? '–' : !MD.pen ? 'Bluetooth footswitch off' : conn !== 2 ? 'Needs the Bluetooth connection' : PSTATE[MD.ped] || '–';
   const blks = noAmp2(ORD.length ? ORD : defOrd()).concat(['amp2']).filter(b => b !== 'amp' && hasBlk(b) && (inChain(b) || cur.blks.includes(b)));
   const nx = MD && MD.map.find(m => m && m.a === 3), pv = MD && MD.map.find(m => m && m.a === 4);
+  const isSn = cur.snap !== null, si = isSn ? cur.snap : 'ABCD'.indexOf(fsSel);
   let h = '<div class="grab"></div><div class="shd"><div class="tx"><b>Footswitches</b><span class="small mut">' + esc(MD && MD.ped === 3 && MD.pname ? MD.pname : 'Bluetooth footswitch') + ' · ' + esc(pst) + '</span></div><button class="close" data-x aria-label="Close">' + svg('close') + '</button></div>' +
-    '<div class="pedal">' + G4.map(f => { const c = f.blks.length ? cvar(f.blks[0]) : '#3A404C';
+    '<div class="pedal">' + G4.map(f => { const c = f.snap !== null ? 'var(--st)' : f.blks.length ? cvar(f.blks[0]) : '#3A404C';
       return '<button class="' + (f.key === fsSel ? 'on' : '') + '" style="--c:' + c + '" data-pk="' + f.key + '" aria-pressed="' + (f.key === fsSel) + '" aria-label="Switch ' + f.key + '"><span class="pl" style="background:' + c + ';box-shadow:0 0 8px ' + c + '"></span><span class="pk"><i></i></span><span class="pn">' + f.key + '</span></button>'; }).join('') + '</div>' +
     '<span class="note">' + ((pv || nx) ? 'Preset −/+ on ' + [pv ? 'CC ' + pv.n : '', nx ? 'CC ' + nx.n : ''].filter(Boolean).join(' / ') : 'Program Change 1–16 recalls the presets') + '</span>' +
-    '<div class="row"><b class="g sp" style="font-size:18px">Switch ' + fsSel + ' turns on and off</b><span class="small mut">' + (cur.blks.length === 1 ? '1 block' : cur.blks.length + ' blocks') + '</span></div>' +
+    (hasSnap() ? '<div class="segw"><span>Switch ' + fsSel + ' recalls</span><div class="seg" id="fmode"><button class="' + (isSn ? 'on' : '') + '" data-m="snap">A snapshot</button><button class="' + (isSn ? '' : 'on') + '" data-m="blocks">Blocks on/off</button></div></div>' : '') +
+    (isSn ? '<div class="box"><div class="row"><b class="g sp" style="font-size:18px">Snapshot ' + 'ABCD'[si] + '</b>' + (SN.act === si ? '<span class="tag" style="background:color-mix(in srgb,var(--st) 14%,transparent);color:var(--st)">ACTIVE</span>' : '') + '</div>' +
+      '<input class="sninp" id="snname" maxlength="12" placeholder="Name, e.g. Solo" value="' + esc(SN.names[si] || '') + '" aria-label="Snapshot name">' +
+      '<div class="row"><button class="sp" id="snrec"' + (SN.act === si ? ' disabled' : '') + '>Recall it now</button><button class="sp" id="sncopy"' + (SN.act === si ? ' disabled' : '') + '>Copy the current sound here</button></div>' +
+      '<span class="note">A snapshot remembers which blocks are on, their settings, and the path mix. While it is active, every change goes into it. Order, paths, captures and IRs belong to the preset. Save the preset to keep the snapshots.</span></div>'
+    : '<div class="row"><b class="g sp" style="font-size:18px">Switch ' + fsSel + ' turns on and off</b><span class="small mut">' + (cur.blks.length === 1 ? '1 block' : cur.blks.length + ' blocks') + '</span></div>' +
     '<div class="tg">' + blks.map(b => '<button class="tgb' + (cur.blks.includes(b) ? ' on' : '') + '" style="--c:' + cvar(b) + '" data-tb="' + b + '" aria-pressed="' + cur.blks.includes(b) + '">' + svg(BLK[b].i) + '<span>' + esc(BLK[b].name) + '</span><span class="ck">' + svg('check') + '</span></button>').join('') + '</div>' +
-    '<span class="note">Pick more than one to switch them together, for example Drive 2 + Delay for a solo. Only blocks in the chain are listed.</span>' +
+    '<span class="note">Pick more than one to switch them together, for example Drive 2 + Delay for a solo. Only blocks in the chain are listed.</span>') +
+    (hasSnap() && G4.some(f => f.snap === null) ? '<button id="snall">Use snapshots on all four switches</button>' : '') +
     '<div class="row"><button class="sp" id="fpen">' + (MD && MD.pen ? 'Turn the Bluetooth footswitch off' : 'Turn the Bluetooth footswitch on') + '</button><button id="fscan">Search</button></div>' +
     '<button id="fmidi">Wired MIDI and custom mappings</button>';
   const E = $('#fin'); E.innerHTML = h;
   E.querySelector('[data-x]').onclick = closeFs;
   E.querySelectorAll('[data-pk]').forEach(e => e.onclick = () => { fsSel = e.dataset.pk; renderFs(); });
   E.querySelectorAll('[data-tb]').forEach(e => e.onclick = () => assignToggle(fsSel, e.dataset.tb));
+  E.querySelectorAll('#fmode [data-m]').forEach(e => e.onclick = () => setFsMode(fsSel, e.dataset.m));
+  const nm = E.querySelector('#snname'); if (nm) nm.onchange = async () => { try { const d = await getj('/api/snapname?s=' + si + '&n=' + encodeURIComponent(nm.value.trim().slice(0, 12))); if (!d.err) { SN = d; refresh(); } } catch(e) {} };
+  const rc = E.querySelector('#snrec'); if (rc) rc.onclick = async () => { await recallSnap(si); renderFs(); };
+  const cp = E.querySelector('#sncopy'); if (cp) cp.onclick = async () => { try { const d = await getj('/api/snapcopy?to=' + si); if (d.err) toast(d.err); else { SN = d; toast('Current sound copied to snapshot ' + 'ABCD'[si]); refresh(); renderFs(); } } catch(e) {} };
+  const sa = E.querySelector('#snall'); if (sa) sa.onclick = allSnaps;
   $('#fpen').onclick = () => midiApi('/api/pedal?en=' + (MD && MD.pen ? 0 : 1));
   $('#fscan').onclick = () => midiApi('/api/pedal?scan=1');
   $('#fmidi').onclick = () => { closeFs(); openMidi(); };
@@ -1626,7 +1706,7 @@ $('#rfs').onclick = () => openFs('A');
 
 /* ===================== MIDI ===================== */
 const MTYPE = ['CC', 'PC', 'Note'], MMODE = ['toggle on press', 'follow (>=64 on)', 'continuous (pedal)', 'any value'];
-const MACT = ['Block on/off', 'Parameter', 'Preset', 'Preset +1', 'Preset -1', 'Mute', 'Delay tap tempo', 'Tuner'];
+const MACT = ['Block on/off', 'Parameter', 'Preset', 'Preset +1', 'Preset -1', 'Mute', 'Delay tap tempo', 'Tuner', 'Snapshot'];
 async function midiApi(u){ try { const d = await getj(u); if (d.err) toast(d.err); else if (d.map) { MD = d; renderMidi(); renderFs(); if (view === 'setup') renderSetup(); if (view === 'play') renderPlay(); if (view === 'chain' && !dragging) renderChain(); } return d; } catch(e) {} }
 function openMidi(){ $('#sheet').classList.remove('hid'); renderMidi(); midiApi('/api/midi'); }
 function renderMidi(){
@@ -1654,6 +1734,7 @@ function renderMidi(){
       mk(P.filter(p => p.t === 'knob' || p.t === 'glob').map(p => [p.k, (G[p.g] ? G[p.g].name + ' · ' : '') + p.l]), m.k, 'k');
       if (m.m !== 2) { const v = document.createElement('input'); v.type = 'number'; v.step = 'any'; v.value = m.v; v.setAttribute('aria-label', 'Value to recall'); v.onchange = () => midiApi('/api/midiset?i=' + i + '&v=' + v.value); C.appendChild(v); }
     }
+    if (m.a === 8) mk([0, 1, 2, 3].map(j => [j, 'Snapshot ' + 'ABCD'[j]]), m.v, 'v');
     if (m.a === 2 && !(m.t === 1 && m.n === 255)) mk([...Array(16).keys()].map(j => [j, 'Preset ' + (j + 1)]), m.v, 'v');
     L.appendChild(r);
   });
@@ -1767,10 +1848,11 @@ async function poll(){
     $('#rbar').style.width = Math.min(100, s.dsp) + '%'; $('#rbar').classList.toggle('hot', s.dsp > 95);
     let changed = false;
     if (s.np !== P.length || (s.lv !== undefined && s.lv !== LV)) { await reload(); changed = true; }
-    else s.v.forEach((v, i) => { const p = P[i]; if (p && p.v !== v && dragging !== p.k && !(p.k in pending)) { p.v = v; changed = true; } });
+    else s.v.forEach((v, i) => { const p = P[i]; if (p && p.v !== v && dragging !== p.k && !(p.k in pending) && !fresh(p.k)) { p.v = v; changed = true; } });
     if (s.cap && (s.cap.act !== capAct || s.cap.st !== capInfo.st || s.cap.lite !== capInfo.lite)) { loadCaps(); }
     else if (s.cap2 && (s.cap2.act !== capInfo.active2 || s.cap2.st !== capInfo.st2)) { loadCaps(); }
-    if (s.ps !== undefined && s.ps !== psCur) { psCur = s.ps; kept.clear(); changed = true; }
+    if (s.ps !== undefined && s.ps !== psCur) { psCur = s.ps; kept.clear(); changed = true; loadSnaps(); }
+    if (s.sn !== undefined && hasSnap() && s.sn !== SN.act) loadSnaps();
     if (s.eng !== undefined && s.eng !== engCur) { engCur = s.eng; changed = true; }
     if (s.midi !== undefined && MD && (s.midi !== MD.count || MD.ped !== s.ped || MD.learn >= 0)) midiApi('/api/midi');
     if (saveWait && s.save !== -1) { saveWait = false; toast(s.save ? 'Settings saved' : 'Save error'); }
@@ -1789,7 +1871,7 @@ async function init(){
     await new Promise(r => setTimeout(r, 1000));
   }
   try { const d = await getj('/api/presets'); PS = d.slots; psCur = d.cur; } catch(e) {}
-  await loadCaps(); await loadIrs(); await midiApi('/api/midi');
+  await loadCaps(); await loadIrs(); await loadSnaps(); await midiApi('/api/midi');
   refresh();
   poll();
 }
