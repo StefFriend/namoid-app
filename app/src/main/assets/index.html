@@ -845,7 +845,7 @@ async function assignToggle(key, blk){
 }
 
 /* ===================== snapshot: 4 varianti di ogni preset (A-D), richiamate dai pedali ===================== */
-/* Uno snapshot ricorda acceso/spento e i parametri dei blocchi nella catena, piu' il mix e le posizioni dei percorsi.
+/* Uno snapshot ricorda acceso/spento, modello e parametri dei blocchi, i livelli degli ampli, il mix e le posizioni dei percorsi.
    Ordine dei blocchi, percorsi, catture e IR restano quelli del preset. Le modifiche entrano nello snapshot attivo. */
 let SN = null;
 const hasSnap = () => !!(SN && Array.isArray(SN.names));
@@ -1466,7 +1466,7 @@ function renderFs(){
     (isSn ? '<div class="box"><div class="row"><b class="g sp" style="font-size:18px">Snapshot ' + 'ABCD'[si] + '</b>' + (SN.act === si ? '<span class="tag" style="background:color-mix(in srgb,var(--st) 14%,transparent);color:var(--st)">ACTIVE</span>' : '') + '</div>' +
       '<input class="sninp" id="snname" maxlength="12" placeholder="Name, e.g. Solo" value="' + esc(SN.names[si] || '') + '" aria-label="Snapshot name">' +
       '<div class="row"><button class="sp" id="snrec"' + (SN.act === si ? ' disabled' : '') + '>Recall it now</button><button class="sp" id="sncopy"' + (SN.act === si ? ' disabled' : '') + '>Copy the current sound here</button></div>' +
-      '<span class="note">A snapshot remembers which blocks are on, their settings, and the path mix. While it is active, every change goes into it. Order, paths, captures and IRs belong to the preset. Save the preset to keep the snapshots.</span></div>'
+      '<span class="note">A snapshot remembers which blocks are on, their models and settings, the amp levels and the path mix. While it is active, every change goes into it. Order, paths, captures and IRs belong to the preset. Save the preset to keep the snapshots.</span></div>'
     : '<div class="row"><b class="g sp" style="font-size:18px">Switch ' + fsSel + ' turns on and off</b><span class="small mut">' + (cur.blks.length === 1 ? '1 block' : cur.blks.length + ' blocks') + '</span></div>' +
     '<div class="tg">' + blks.map(b => '<button class="tgb' + (cur.blks.includes(b) ? ' on' : '') + '" style="--c:' + cvar(b) + '" data-tb="' + b + '" aria-pressed="' + cur.blks.includes(b) + '">' + svg(BLK[b].i) + '<span>' + esc(BLK[b].name) + '</span><span class="ck">' + svg('check') + '</span></button>').join('') + '</div>' +
     '<span class="note">Pick more than one to switch them together, for example Drive 2 + Delay for a solo. Only blocks in the chain are listed.</span>') +
