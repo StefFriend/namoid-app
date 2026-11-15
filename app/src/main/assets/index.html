@@ -493,6 +493,7 @@ body.dragging .dhint{display:flex}
       <div class="segw"><span>Block size</span><div class="seg" id="sblk"></div></div>
       <div class="segw"><span>Safety margin</span><div class="seg" id="slat"></div></div>
       <div class="optr"><div class="tx"><b>Steady power draw</b><span>Keeps the load constant: less tone in the input</span></div><button class="sw" id="scl" aria-label="Steady power draw"></button></div>
+      <div class="optr" id="rnotch"><div class="tx"><b>6 kHz filter</b><span>Removes a faint 6 kHz whistle from the input</span></div><button class="sw" id="snotch" aria-label="6 kHz filter"></button></div>
     </div>
     <div class="card">
       <div class="sec"><div class="si"><svg class="i" viewBox="0 0 24 24"><path d="M6 3v18M12 3v18M18 3v18M3.5 8h5M9.5 15h5M15.5 10h5"/></svg></div><div class="tx"><b>Output EQ</b><span>For every preset: match the room, the PA or headphones</span></div></div>
@@ -1363,7 +1364,7 @@ function exprHTML(b, kn){
     maps.map(([m, i]) => '<div class="row" style="gap:8px"><b class="sp small">' + (MTYPE[m.t] || 'CC') + ' ' + m.n + ' → ' + esc((PK[m.k] || {}).l || m.k) + '</b><button class="del" data-xdel="' + i + '" aria-label="Remove">✕</button></div>').join('') +
     '<div class="row" style="gap:8px"><select class="xk sp" data-xk aria-label="Parameter">' + kn.map(p => '<option value="' + p.k + '"' + (p.k === def ? ' selected' : '') + '>' + esc(p.l) + '</option>').join('') + '</select>' +
     '<button data-xadd class="' + (learning ? 'learn' : '') + '">' + (learning ? 'Move the pedal…' : 'Assign a pedal') + '</button></div>' +
-    '<span class="note">Any MIDI expression pedal (CC). Move it after tapping Assign: it sweeps the parameter from its minimum to its maximum.</span></div>';
+    '<span class="note">A pedal in the EXP jack (TRS cable) or any MIDI expression pedal. Tap Assign, then move the pedal from heel to toe: it sweeps the parameter from its minimum to its maximum.</span></div>';
 }
 async function exprAdd(k){
   if (!MD) await midiApi('/api/midi');
@@ -1466,7 +1467,7 @@ function renderFs(){
     (isSn ? '<div class="box"><div class="row"><b class="g sp" style="font-size:18px">Snapshot ' + 'ABCD'[si] + '</b>' + (SN.act === si ? '<span class="tag" style="background:color-mix(in srgb,var(--st) 14%,transparent);color:var(--st)">ACTIVE</span>' : '') + '</div>' +
       '<input class="sninp" id="snname" maxlength="12" placeholder="Name, e.g. Solo" value="' + esc(SN.names[si] || '') + '" aria-label="Snapshot name">' +
       '<div class="row"><button class="sp" id="snrec"' + (SN.act === si ? ' disabled' : '') + '>Recall it now</button><button class="sp" id="sncopy"' + (SN.act === si ? ' disabled' : '') + '>Copy the current sound here</button></div>' +
-      '<span class="note">A snapshot remembers which blocks are on, their models and settings, the amp levels and the path mix. While it is active, every change goes into it. Order, paths, captures and IRs belong to the preset. Save the preset to keep the snapshots.</span></div>'
+      '<span class="note">A snapshot remembers which blocks and amps are on, the models and settings, the amp levels and the path mix. While it is active, every change goes into it. Order, paths, captures and IRs belong to the preset. Save the preset to keep the snapshots.</span></div>'
     : '<div class="row"><b class="g sp" style="font-size:18px">Switch ' + fsSel + ' turns on and off</b><span class="small mut">' + (cur.blks.length === 1 ? '1 block' : cur.blks.length + ' blocks') + '</span></div>' +
     '<div class="tg">' + blks.map(b => '<button class="tgb' + (cur.blks.includes(b) ? ' on' : '') + '" style="--c:' + cvar(b) + '" data-tb="' + b + '" aria-pressed="' + cur.blks.includes(b) + '">' + svg(BLK[b].i) + '<span>' + esc(BLK[b].name) + '</span><span class="ck">' + svg('check') + '</span></button>').join('') + '</div>' +
     '<span class="note">Pick more than one to switch them together, for example Drive 2 + Delay for a solo. Only blocks in the chain are listed.</span>') +
@@ -1737,6 +1738,7 @@ function renderSetup(){
       $('#soeq').querySelectorAll('input[type=range][data-r]').forEach(r => { rangeFill(r); bindRange(r, r.dataset.r); });
   }
   const cl = PK['io.cl']; $('#scl').classList.toggle('on', !!(cl && cl.v > 0.5));
+  const nt = PK['io.notch']; $('#rnotch').classList.toggle('hid', !nt); $('#snotch').classList.toggle('on', !!(nt && nt.v > 0.5));
   $('#rengv').textContent = isOn('amp2') ? 'Lite (two amps)' : engCur === 2 ? 'Lite' : 'Full';
   $('#rmidiv').textContent = MD ? MD.map.filter(Boolean).length + ' of ' + MD.map.length : '–';
   $('#rfsv').textContent = MD && MD.ped === 3 ? 'connected' : MD && MD.pen ? 'not connected' : 'off';
@@ -1746,6 +1748,7 @@ $('#sgain').oninput = ev => { const p = PK['in.gain']; if (!p) return; dragging 
 $('#sgain').onchange = () => setTimeout(() => { if (dragging === 'in.gain') dragging = null; }, 350);
 $('#boeq').onclick = () => { ['oeq.lo', 'oeq.mid', 'oeq.mf', 'oeq.hi'].forEach(k => { if (PK[k] && PK[k].v) setv(k, 0); }); setTimeout(() => { $('#soeq')._h = null; renderSetup(); }, 80); };
 $('#scl').onclick = () => { const p = PK['io.cl']; if (p) setv('io.cl', p.v > 0.5 ? 0 : 1); };
+$('#snotch').onclick = () => { const p = PK['io.notch']; if (p) setv('io.notch', p.v > 0.5 ? 0 : 1); };
 $('#brefc').onclick = async () => {
   if (!confirm('Input calibration: for 3 seconds keep the guitar silent (volume knob at 0), with nothing connected to the reference input. Proceed?')) return;
   try { await fetch('/api/refcal'); toast('Calibrating: 3 seconds of silence…'); setTimeout(() => toast('Input calibration done (result on the pedal display)'), 4200); } catch(e) {}
