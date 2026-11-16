@@ -16,7 +16,7 @@
   --bg:#090A0E;--s1:#12151B;--s2:#1A1E26;--s3:#0B0D11;--s4:#14171D;--line:#252A34;--line2:#1E222A;--dash:#3A404C;
   --fg:#EEF1F6;--mut:#98A1B0;--dim:#8B94A3;--faint:#6B7382;--off:#2A2F39;--track:#252A34;--hub:#1A1E26;
   --inv:#EEF1F6;--invfg:#090A0E;--onacc:#090A0E;--nav:#0D0F14;--sheet:#12151B;--scrim:rgba(0,0,0,.6);
-  --dyn:#F5B841;--drv:#FF7B3A;--amp:#FF5A5F;--ir:#D2A679;--eq:#C9D1DB;--mod:#B08CFF;--dly:#3FD99A;--rev:#47C8F5;--aco:#F78FB3;--flt:#A6E05A;--vol:#9FB0FF;
+  --dyn:#F5B841;--drv:#FF7B3A;--amp:#FF5A5F;--ir:#D2A679;--eq:#C9D1DB;--mod:#B08CFF;--dly:#3FD99A;--rev:#47C8F5;--aco:#F78FB3;--flt:#A6E05A;--vol:#9FB0FF;--stu:#7FE0D0;
   --st:#47C8F5;--mono:rgba(201,208,219,.4);
   --ok:#3FD99A;--warn:#F5B841;--bad:#FF5A5F;--glow:1;
 }
@@ -24,7 +24,7 @@
   --bg:#F2F3F6;--s1:#FFFFFF;--s2:#EEF0F4;--s3:#E9ECF1;--s4:#FFFFFF;--line:#D9DDE4;--line2:#E4E7EC;--dash:#B9BFC9;
   --fg:#12151B;--mut:#555E6D;--dim:#5F6878;--faint:#7A8392;--off:#CDD2DA;--track:#E1E4EA;--hub:#F1F3F6;
   --inv:#12151B;--invfg:#FFFFFF;--onacc:#FFFFFF;--nav:#FFFFFF;--sheet:#FFFFFF;--scrim:rgba(20,24,32,.35);
-  --dyn:#B87A00;--drv:#D9541A;--amp:#D7333A;--ir:#9A6A38;--eq:#5F6878;--mod:#7A4BE6;--dly:#0E9A60;--rev:#1488BE;--aco:#C2477A;--flt:#4F8A12;--vol:#4A5FD0;
+  --dyn:#B87A00;--drv:#D9541A;--amp:#D7333A;--ir:#9A6A38;--eq:#5F6878;--mod:#7A4BE6;--dly:#0E9A60;--rev:#1488BE;--aco:#C2477A;--flt:#4F8A12;--vol:#4A5FD0;--stu:#13877A;
   --st:#1488BE;--mono:rgba(60,68,80,.35);
   --ok:#0E9A60;--warn:#B87A00;--bad:#D7333A;--glow:.45;
 }
@@ -628,6 +628,7 @@ const IC = {
   rev: 'M5.6 18.4a9 9 0 0 1 0-12.8M18.4 5.6a9 9 0 0 1 0 12.8M8.8 15.2a4.5 4.5 0 0 1 0-6.4M15.2 8.8a4.5 4.5 0 0 1 0 6.4M12 12h.01',
   filt: 'M2 17c3 0 4.5-.5 6-4s2.5-8 4-8 2.5 4.5 4 8 3 4 6 4M12 5v-2',
   vol: 'M7 21h10M9 21l1.2-15h3.6L15 21M8.5 10h7M12 3v3',
+  stu: 'M12 3l1.8 4.7L18.5 9.5l-4.7 1.8L12 16l-1.8-4.7L5.5 9.5l4.7-1.8zM18 15l.9 2.1L21 18l-2.1.9L18 21l-.9-2.1L15 18l2.1-.9zM5 15l.7 1.6L7.3 17.3l-1.6.7L5 19.6l-.7-1.6-1.6-.7 1.6-.7z',
   pkup: 'M3 8.5h18v7H3zM6 12h.01M8.4 12h.01M10.8 12h.01M13.2 12h.01M15.6 12h.01M18 12h.01M12 15.5V21',
   acou: 'M9.2 13.1A3.6 3.6 0 1 1 14.8 13.1A4.8 4.8 0 1 1 9.2 13.1zM12 7.3V3.4M10.9 1.4h2.2v2h-2.2zM12 14.1a1.5 1.5 0 1 0 0 3 1.5 1.5 0 1 0 0-3zM10.5 19.6h3',
   input: 'M2 12h6M8 8.5h4.5a3.5 3.5 0 0 1 0 7H8zM16 12h6',
@@ -674,6 +675,7 @@ const BLK = {
   acou: {ab: 'PICKUP', c: 'aco', i: 'pkup', name: 'Pickup sim', d: 'Turns your single coil into a humbucker, a P-90, other single coils, or an acoustic through its piezo.'},
   filt: {ab: 'FILTER', c: 'flt', i: 'filt', name: 'Filter', d: 'Wah with an expression pedal, auto-wah, envelope and step filters, bitcrusher and lo-fi radio or phone.'},
   vol:  {ab: 'VOLUME', c: 'vol', i: 'vol', name: 'Volume', d: 'Volume pedal for an expression pedal, or an automatic swell that fades every note in.'},
+  stu:  {ab: 'STUDIO', c: 'stu', i: 'stu', name: 'Studio FX', d: 'One big algorithm at a time: huge spaces, echo into reverb, multi-tap, resonators, rich modulation, studio dynamics and saturation.'},
   comp: {ab: 'COMP', c: 'dyn', i: 'comp', name: 'Compressor', d: 'Evens out the level: more sustain, softer peaks.'},
   drv:  {ab: 'DRIVE', c: 'drv', i: 'drv', name: 'Drive', d: 'Overdrive, distortion, fuzz or a clean boost.'},
   amp:  {ab: 'AMP', c: 'amp', i: 'amp', name: 'Amp', d: 'Your NAM capture.'},
@@ -689,10 +691,11 @@ const BLK = {
   amp2: {ab: 'AMP 2', c: 'amp', i: 'amp', name: 'Amp 2', d: 'A second NAM amp: beside the first (two paths, stereo) or after it.'}
 };
 const PK_AC = 8;          /* Pickup sim: i primi 8 modelli sono acustiche */
-const ADD_ORDER = ['gate', 'acou', 'comp', 'filt', 'drv', 'drv2', 'amp2', 'ir', 'ir2', 'eq', 'mod', 'mod2', 'vol', 'dly', 'dly2', 'rev'];
+const STU_GRP = [['Spaces', 0, 6], ['Combined', 6, 9], ['Modulation', 9, 12], ['Dynamics', 12, 14], ['Saturation', 14, 17]];
+const ADD_ORDER = ['gate', 'acou', 'comp', 'filt', 'drv', 'drv2', 'amp2', 'ir', 'ir2', 'eq', 'mod', 'mod2', 'vol', 'dly', 'dly2', 'stu', 'rev'];
 let ORD = [], PAIRS = [], LV = -1;
 /* ordine di partenza: solo i blocchi che il firmware ha (Acoustic dalla v48f) */
-const DEF_ALL = ['gate', 'acou', 'comp', 'filt', 'drv', 'drv2', 'amp', 'ir', 'ir2', 'mod', 'mod2', 'vol', 'dly', 'dly2', 'rev', 'eq'];
+const DEF_ALL = ['gate', 'acou', 'comp', 'filt', 'drv', 'drv2', 'amp', 'ir', 'ir2', 'mod', 'mod2', 'vol', 'dly', 'dly2', 'stu', 'rev', 'eq'];
 const defOrd = () => DEF_ALL.filter(b => b === 'amp' || hasBlk(b));
 const noAmp2 = o => o.filter(b => b !== 'amp2');
 const pairOf = b => PAIRS.find(x => x[0] === b || x[1] === b);
@@ -1306,6 +1309,9 @@ function renderEditor(){
       const all = mp.n.map((_, i) => i);
       h += '<div class="segw"><span>Electric pickups</span><div class="models" style="--c:' + cvar(b) + '">' + chipsOf(all.slice(PK_AC)) + '</div></div>' +
            '<div class="segw"><span>Acoustic, through its piezo</span><div class="models" style="--c:' + cvar(b) + '">' + chipsOf(all.slice(0, PK_AC)) + '</div></div>';
+    } else if (mp && b === 'stu' && mp.n.length >= 17){
+      /* Studio FX: algoritmi per famiglia */
+      h += STU_GRP.map(([t, a, z]) => '<div class="segw"><span>' + t + '</span><div class="models" style="--c:' + cvar(b) + '">' + chipsOf(mp.n.map((_, i) => i).slice(a, z)) + '</div></div>').join('');
     } else if (mp) h += '<div class="models" style="--c:' + cvar(b) + '">' + chipsOf(mp.n.map((_, i) => i)) + '</div>';
     if (b === 'amp') h += capList('amp.cap', capAct, isOn('amp2'));
     if (b === 'amp2') {
