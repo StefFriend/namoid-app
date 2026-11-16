@@ -709,7 +709,9 @@ const isOn = b => { const p = onP(b); return p ? p.v > 0.5 : false; };
 const modelP = b => bparams(b).find(p => p.t === 'model');
 const hasBlk = b => G.some(g => g.blk === b);
 /* due percorsi: secondo ampli acceso e in parallelo */
-const dual = () => isOn('amp') && isOn('amp2') && isPar('amp');
+/* due percorsi: scelti con "Two paths" (anche senza ampli) oppure Amp e Amp 2 in parallelo */
+const pathsOn = () => !!(PK['paths'] && PK['paths'].v > 0.5);
+const dual = () => pathsOn() || (isOn('amp') && isOn('amp2') && isPar('amp'));
 const laneOf = b => { if (!dual() || b === 'amp' || b === 'amp2') return 0; const p = PK[b + '.lane']; return p ? Math.round(p.v) : 0; };
 function fhz(v){ return v < 1000 ? Math.round(v) + ' Hz' : (v / 1000).toFixed(v % 1000 ? 1 : 0) + ' kHz'; }
 function fmt(p, v){
@@ -907,7 +909,7 @@ function renderStrip(){
   if (D){
     pre.filter(b => !laneOf(b)).forEach(b => { h += wire() + col([b]); });
     const l1 = pre.filter(b => laneOf(b) === 1).concat(['amp'], post.filter(b => laneOf(b) === 1));
-    const l2 = pre.filter(b => laneOf(b) === 2).concat(['amp2'], post.filter(b => laneOf(b) === 2));
+    const l2 = pre.filter(b => laneOf(b) === 2).concat(inChain('amp2') ? ['amp2'] : [], post.filter(b => laneOf(b) === 2));
     h += wire() + '<span class="col"><span style="display:flex;gap:3px">' + l1.map(mt).join('') + '</span><span style="display:flex;gap:3px">' + l2.map(mt).join('') + '</span></span>';
     st = true;
     post.filter(b => !laneOf(b)).forEach(b => { h += wire() + col([b]); });
@@ -1011,14 +1013,15 @@ function renderChain(){
   if (D){
     const sp = pre.filter(b => !laneOf(b));
     h += rowZone(false, 'MONO · into both paths') + rowAdd(false, '', 'pre') + seqHTML(sp, false, '', 'pre');
-    h += '<div class="fr">' + gut(LN(false, 'top'), '<span class="node">' + svg('split') + '</span>') + '<div class="iol"><b style="letter-spacing:1px;font-size:13px">SPLIT INTO TWO PATHS</b><span>Each path is its own mono rig</span></div></div>';
+    h += '<div class="fr">' + gut(LN(false, 'top'), '<span class="node">' + svg('split') + '</span>') + '<div class="iol sp"><b style="letter-spacing:1px;font-size:13px">SPLIT INTO TWO PATHS</b><span>Each path is its own mono rig, with or without an amp</span></div>' +
+      (PK['paths'] ? '<button class="hbtn" data-paths="0" style="align-self:center">One path</button>' : '') + '</div>';
     const lane = (n, amp, col, side) => {
       const lp = pre.filter(b => laneOf(b) === n), lq = post.filter(b => laneOf(b) === n);
       const dz = (a, bf, z) => '<div class="dz"' + dropAttr(a, bf, n, z) + '><span>Drop here</span></div>';
       return '<div class="lane" style="--lc:' + col + '"><span class="wire"></span><div class="lh"><b>PATH ' + n + '</b><span class="small mut">→ ' + side + '</span></div>' +
         lp.map(b => dz('', b, 'pre') + miniHTML(b)).join('') +
         '<button class="ladd"' + dropAttr(lp.length ? lp[lp.length - 1] : '', 'amp', n, 'pre') + ' data-add="' + (lp.length ? lp[lp.length - 1] : '') + '" data-before="amp" data-lane="' + n + '">' + svg('plus') + '<span>Add</span></button>' +
-        miniHTML(amp, ' amp') + lq.map((b, i) => dz(i ? lq[i - 1] : 'amp', '', 'post') + miniHTML(b)).join('') +
+        (amp === 'amp2' && !inChain('amp2') ? (hasBlk('amp2') ? '<button class="ladd" data-amp2on>' + svg('amp') + '<span>No amp · add Amp 2</span></button>' : '') : miniHTML(amp, ' amp')) + lq.map((b, i) => dz(i ? lq[i - 1] : 'amp', '', 'post') + miniHTML(b)).join('') +
         '<button class="ladd"' + dropAttr(lq.length ? lq[lq.length - 1] : 'amp', '', n, 'post') + ' data-add="' + (lq.length ? lq[lq.length - 1] : 'amp') + '" data-lane="' + n + '">' + svg('plus') + '<span>Add</span></button></div>';
     };
     h += '<div class="lanes">' + lane(1, 'amp', 'var(--drv)', 'left') + lane(2, 'amp2', 'var(--mod)', 'right') + '</div>';
@@ -1035,6 +1038,7 @@ function renderChain(){
       '<div class="bc on" data-ed="amp" role="button" tabindex="0"><div class="tx"><div class="nm"><b>Amp</b><span class="chip2" style="--cc:var(--amp)">' + (capInfo.lite ? 'LITE' : 'FULL') + '</span></div><span class="sub ell">' + esc(short('amp')) + '</span></div>' +
       '<button class="pwr' + (isOn('amp') ? ' on' : '') + '" style="--c:var(--amp)" data-pw="amp" aria-label="Amp on or off">' + svg('power') + '</button></div></div>';
     if (am2) h += rowBlock('amp2', false);
+    if (PK['paths']) h += '<div class="fr">' + gut(LN(false)) + '<button class="hbtn" data-paths="1" style="margin:2px 0">' + svg('split') + '<span style="margin-left:6px">Split into two paths</span></button></div>';
     const stpost = post.some(b => isOn(b) && /^(mod|dly|rev)/.test(b));
     h += rowAdd(false, 'amp', 'post') + rowZone(stpost, stpost ? 'STEREO · after the amp' : 'AFTER THE AMP') + seqHTML(post, stpost, 'amp', 'post');
   }
@@ -1044,9 +1048,11 @@ function renderChain(){
   F.querySelectorAll('[data-ed]').forEach(e => e.onclick = ev => { if (ev.target.closest('[data-pw]') || justDragged()) return; openEditor(e.dataset.ed, e.dataset.tab); });
   F.querySelectorAll('[data-pw]').forEach(e => e.onclick = ev => { ev.stopPropagation(); const p = onP(e.dataset.pw); if (p) setv(p.k, p.v > 0.5 ? 0 : 1); });
   F.querySelectorAll('[data-add]').forEach(e => e.onclick = () => justDragged() || openAdd(e.dataset.add, +e.dataset.lane, e.dataset.before));
+  F.querySelectorAll('[data-paths]').forEach(e => e.onclick = () => setPaths(+e.dataset.paths));
+  F.querySelectorAll('[data-amp2on]').forEach(e => e.onclick = () => setv('amp2.on', 1));
   }
-  const tip = (D ? 'Hold a block and drag it: into Path 1 or Path 2, or above the split / below the merge to share it.'
-    : hasBlk('amp2') ? 'Hold a block and drag it to move it. Drag Amp 2 onto Amp to split into two paths.' : 'Hold a block and drag it to move it.') +
+  const tip = (D ? 'Hold a block and drag it: into Path 1 or Path 2, or above the split / below the merge to share it. A path works with or without an amp.'
+    : 'Hold a block and drag it to move it. "Split into two paths" gives two separate rigs, with or without amps.') +
     ' The power button bypasses a block; drag it to "Not in the chain" to remove it.';
   put($('#ctip'), svg('move') + '<span>' + esc(tip) + (hasSnap() && SN.act >= 0 ? ' Changes go into snapshot ' + 'ABCD'[SN.act] + (SN.names[SN.act] ? ' (' + SN.names[SN.act] + ')' : '') + '.' : '') + '</span>');
   const sp = ADD_ORDER.filter(b => hasBlk(b) && !inChain(b));
@@ -1055,6 +1061,13 @@ function renderChain(){
   $('#spadd').onclick = () => openAdd(lastAnchor(), 0, null, null, true);
   $('#spare').querySelectorAll('[data-sp]').forEach(e => e.onclick = () => justDragged() || openAdd(lastAnchor(), 0, null, e.dataset.sp, true));
   }
+}
+/* due percorsi sì/no. Tornando a uno: se i percorsi venivano da Amp + Amp 2 in parallelo, Amp 2 si spegne */
+async function setPaths(on){
+  if (on) { if (await setNow('paths', 1)) toast('Two paths: drag blocks into Path 1 or Path 2'); return reload(); }
+  await setNow('paths', 0);
+  if (isOn('amp2') && isPar('amp')) { await setNow('amp2.on', 0); toast('One path (Amp 2 switched off)'); }
+  reload();
 }
 function lastAnchor(){ const { post } = chainParts(); return post.length ? post[post.length - 1] : 'amp'; }
 function fmtBal(v){ const r = Math.round(v); return r === 50 ? '50 / 50' : r < 50 ? 'more Amp' : 'more Amp 2'; }
