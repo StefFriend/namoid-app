@@ -684,6 +684,8 @@ const BLK = {
   mod:  {ab: 'MOD', c: 'mod', i: 'mod', name: 'Modulation', d: 'Chorus, phaser, flanger, tremolo, vibrato and more.'},
   dly:  {ab: 'DELAY', c: 'dly', i: 'dly', name: 'Delay', d: 'Echoes: digital, analog, tape, ping-pong and more.'},
   rev:  {ab: 'REV', c: 'rev', i: 'rev', name: 'Reverb', d: 'Space: room, hall, plate, spring, shimmer, freeze, bloom, gated.'},
+  acou2: {ab: 'PICKUP 2', c: 'aco', i: 'pkup', name: 'Pickup sim 2', d: 'A second pickup sim: one per path (for example acoustic on Path 1, humbucker on Path 2), or beside the first.'},
+  stu2: {ab: 'STUDIO 2', c: 'stu', i: 'stu', name: 'Studio FX 2', d: 'A second Studio FX: one per path, after the first, or beside it.'},
   drv2: {ab: 'DRIVE 2', c: 'drv', i: 'drv', name: 'Drive 2', d: 'A second drive: stack it, or run it beside Drive.'},
   mod2: {ab: 'MOD 2', c: 'mod', i: 'mod', name: 'Modulation 2', d: 'A second modulation, after or beside the first.'},
   dly2: {ab: 'DELAY 2', c: 'dly', i: 'dly', name: 'Delay 2', d: 'A second delay, for example a dotted eighth beside the first.'},
@@ -692,10 +694,10 @@ const BLK = {
 };
 const PK_AC = 8;          /* Pickup sim: i primi 8 modelli sono acustiche */
 const STU_GRP = [['Spaces', 0, 6], ['Combined', 6, 9], ['Modulation', 9, 12], ['Dynamics', 12, 14], ['Saturation', 14, 17]];
-const ADD_ORDER = ['gate', 'acou', 'comp', 'filt', 'drv', 'drv2', 'amp2', 'ir', 'ir2', 'eq', 'mod', 'mod2', 'vol', 'dly', 'dly2', 'stu', 'rev'];
+const ADD_ORDER = ['gate', 'acou', 'acou2', 'comp', 'filt', 'drv', 'drv2', 'amp2', 'ir', 'ir2', 'eq', 'mod', 'mod2', 'vol', 'dly', 'dly2', 'stu', 'stu2', 'rev'];
 let ORD = [], PAIRS = [], LV = -1;
 /* ordine di partenza: solo i blocchi che il firmware ha (Acoustic dalla v48f) */
-const DEF_ALL = ['gate', 'acou', 'comp', 'filt', 'drv', 'drv2', 'amp', 'ir', 'ir2', 'mod', 'mod2', 'vol', 'dly', 'dly2', 'stu', 'rev', 'eq'];
+const DEF_ALL = ['gate', 'acou', 'acou2', 'comp', 'filt', 'drv', 'drv2', 'amp', 'ir', 'ir2', 'mod', 'mod2', 'vol', 'dly', 'dly2', 'stu', 'stu2', 'rev', 'eq'];
 const defOrd = () => DEF_ALL.filter(b => b === 'amp' || hasBlk(b));
 const noAmp2 = o => o.filter(b => b !== 'amp2');
 const pairOf = b => PAIRS.find(x => x[0] === b || x[1] === b);
@@ -1236,7 +1238,7 @@ function openAdd(after, lane, before, pick, spare){
   $('#asheet').classList.remove('hid'); renderAdd();
 }
 /* da "Not in the chain" senza un punto scelto: Acoustic va subito dopo l'ingresso (prima di tutto il resto), gli altri in fondo */
-const addAt = () => addCtx.spare && addCtx.sel === 'acou' ? Object.assign({}, addCtx, { after: 'gate', before: '', lane: 0, start: 1 }) : addCtx;
+const addAt = () => addCtx.spare && (addCtx.sel === 'acou' || addCtx.sel === 'acou2') ? Object.assign({}, addCtx, { after: 'gate', before: '', lane: 0, start: 1 }) : addCtx;
 function addWhere(){
   const a = addAt();
   if (a.start) return 'Right after the guitar input' + (dual() ? ' · into both paths' : ' · mono');
@@ -1304,12 +1306,12 @@ function renderEditor(){
   if (edTab === 'sound'){
     const mp = modelP(b);
     const chipsOf = (ix) => ix.map(i => '<button class="chip' + (Math.round(mp.v) === i ? ' on' : '') + '" data-k="' + mp.k + '" data-v="' + i + '">' + esc(mp.n[i]) + '</button>').join('');
-    if (mp && b === 'acou' && mp.n.length > PK_AC){
+    if (mp && (b === 'acou' || b === 'acou2') && mp.n.length > PK_AC){
       /* Pickup sim: prima le acustiche (piezo), poi i pickup elettrici */
       const all = mp.n.map((_, i) => i);
       h += '<div class="segw"><span>Electric pickups</span><div class="models" style="--c:' + cvar(b) + '">' + chipsOf(all.slice(PK_AC)) + '</div></div>' +
            '<div class="segw"><span>Acoustic, through its piezo</span><div class="models" style="--c:' + cvar(b) + '">' + chipsOf(all.slice(0, PK_AC)) + '</div></div>';
-    } else if (mp && b === 'stu' && mp.n.length >= 17){
+    } else if (mp && (b === 'stu' || b === 'stu2') && mp.n.length >= 17){
       /* Studio FX: algoritmi per famiglia */
       h += STU_GRP.map(([t, a, z]) => '<div class="segw"><span>' + t + '</span><div class="models" style="--c:' + cvar(b) + '">' + chipsOf(mp.n.map((_, i) => i).slice(a, z)) + '</div></div>').join('');
     } else if (mp) h += '<div class="models" style="--c:' + cvar(b) + '">' + chipsOf(mp.n.map((_, i) => i)) + '</div>';
