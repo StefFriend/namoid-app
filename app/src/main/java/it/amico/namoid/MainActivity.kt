@@ -1,4 +1,4 @@
-package it.amico.voidxfx
+package it.amico.namoid
 
 import android.Manifest
 import android.annotation.SuppressLint
@@ -99,7 +99,7 @@ class MainActivity : Activity() {
                 return try { startActivityForResult(Intent.createChooser(i, "Choose a file"), REQ_FILE); true } catch (e: Exception) { fileCb = null; false }
             }
         }
-        web.addJavascriptInterface(Bridge(), "VXBridge")
+        web.addJavascriptInterface(Bridge(), "NamoidBridge")
         setContentView(web)
         web.loadUrl("file:///android_asset/index.html")
         t3k = T3k(this) { code -> js(code) }
@@ -118,7 +118,7 @@ class MainActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
-    /* ritorno da TONE3000 (voidxfx://t3k): l'attivita' e' singleTask, arriva qui */
+    /* ritorno da TONE3000 (namoid://t3k): l'attivita' e' singleTask, arriva qui */
     private var pendingLink: Uri? = null
     private var pageReady = false
     override fun onNewIntent(intent: Intent?) {
@@ -173,8 +173,8 @@ class MainActivity : Activity() {
     }
 
     private fun js(code: String) = ui.post { web.evaluateJavascript(code, null) }
-    private fun status(st: Int, txt: String) { state = st; js("window.vxStatus && window.vxStatus($st, ${JSONObject.quote(txt)})") }
-    private fun fail(id: Int, why: String) = js("window.vxFail && window.vxFail($id, ${JSONObject.quote(why)})")
+    private fun status(st: Int, txt: String) { state = st; js("window.nmStatus && window.nmStatus($st, ${JSONObject.quote(txt)})") }
+    private fun fail(id: Int, why: String) = js("window.nmFail && window.nmFail($id, ${JSONObject.quote(why)})")
 
     /* ---------------- permessi ---------------- */
     private fun perms(): Array<String> =
@@ -210,7 +210,7 @@ class MainActivity : Activity() {
                 val name = rec?.deviceName ?: try { result.device.name } catch (e: SecurityException) { null }
                 val hasSvc = rec?.serviceUuids?.any { it.uuid == SVC } == true
                 if (seen.add(result.device.address)) status(ST_BUSY, "searching for Namoid… (" + seen.size + " Bluetooth devices seen)")
-                if (!hasSvc && name != "Namoid" && name != "VoidX-FX") return@post   /* VoidX-FX: firmware prima del nome Namoid */
+                if (!hasSvc && name != "Namoid") return@post
                 stopScan()
                 connect(result.device)
             }
@@ -381,7 +381,7 @@ class MainActivity : Activity() {
         val parts = head.trim().split(" ")
         val id = parts.getOrNull(0)?.toIntOrNull() ?: return
         val code = parts.getOrNull(1)?.toIntOrNull() ?: 500
-        js("window.vxResp && window.vxResp($id, $code, ${JSONObject.quote(body)})")
+        js("window.nmResp && window.nmResp($id, $code, ${JSONObject.quote(body)})")
         if (cur?.id == id) {
             cur = null
             h.removeCallbacksAndMessages(TIMEOUT_TOKEN)

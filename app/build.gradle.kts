@@ -4,14 +4,14 @@ plugins {
 }
 
 android {
-    namespace = "it.amico.voidxfx"
+    namespace = "it.amico.namoid"
     compileSdk = 34
     defaultConfig {
-        applicationId = "it.amico.voidxfx"
+        applicationId = "it.amico.namoid"
         minSdk = 26
         targetSdk = 34
-        versionCode = 18
-        versionName = "3.13"
+        versionCode = 19
+        versionName = "3.14"
     }
     buildTypes {
         release { isMinifyEnabled = false }

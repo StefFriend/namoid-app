@@ -1,4 +1,4 @@
-package it.amico.voidxfx
+package it.amico.namoid
 
 import android.app.Activity
 import android.content.Context
@@ -63,7 +63,7 @@ class T3k(private val act: Activity, private val js: (String) -> Unit) {
 
     /** ritorno da TONE3000 (deep link). true se era per noi */
     fun handle(uri: Uri?): Boolean {
-        if (uri == null || (uri.scheme != "namoid" && uri.scheme != "voidxfx") || uri.host != "t3k") return false
+        if (uri == null || uri.scheme != "namoid" || uri.host != "t3k") return false
         val error = uri.getQueryParameter("error")
         val code = uri.getQueryParameter("code")
         val tone = uri.getQueryParameter("tone_id")

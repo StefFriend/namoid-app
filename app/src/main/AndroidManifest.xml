@@ -31,7 +31,6 @@
                 <category android:name="android.intent.category.DEFAULT" />
                 <category android:name="android.intent.category.BROWSABLE" />
                 <data android:scheme="namoid" android:host="t3k" />
-                <data android:scheme="voidxfx" android:host="t3k" />
             </intent-filter>
         </activity>
     </application>

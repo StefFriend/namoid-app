@@ -713,16 +713,16 @@ main{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
 <div class="dhint" id="dhint"><i></i><span id="dhintt"></span></div>
 
 <script>
-/* ===================== trasporto: nell'app le richieste passano dal Bluetooth (VXBridge) ===================== */
-const APP = !!window.VXBridge;
+/* ===================== trasporto: nell'app le richieste passano dal Bluetooth (NamoidBridge) ===================== */
+const APP = !!window.NamoidBridge;
 const $ = (s, r = document) => r.querySelector(s);
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 let connected = !APP;
 if (APP){
   const waits = {}; let rid = 1;
   const b64 = u8 => { let s = ''; for (let i = 0; i < u8.length; i += 0x8000) s += String.fromCharCode.apply(null, u8.subarray(i, i + 0x8000)); return btoa(s); };
-  window.vxResp = (id, status, text) => { const w = waits[id]; if (!w) return; delete waits[id]; clearTimeout(w.t); w.ok({ ok: status < 400, status, json: async () => JSON.parse(text), text: async () => text }); };
-  window.vxFail = (id, why) => { const w = waits[id]; if (!w) return; delete waits[id]; clearTimeout(w.t); w.ko(new Error(why)); };
+  window.nmResp = (id, status, text) => { const w = waits[id]; if (!w) return; delete waits[id]; clearTimeout(w.t); w.ok({ ok: status < 400, status, json: async () => JSON.parse(text), text: async () => text }); };
+  window.nmFail = (id, why) => { const w = waits[id]; if (!w) return; delete waits[id]; clearTimeout(w.t); w.ko(new Error(why)); };
   window.fetch = async (url, opts) => {
     let body = '';
     if (opts && opts.body){
@@ -732,11 +732,11 @@ if (APP){
     }
     const id = rid++;
     return new Promise((ok, ko) => {
-      waits[id] = { ok, ko, t: setTimeout(() => window.vxFail(id, 'timeout'), body ? 90000 : 8000) };
-      VXBridge.request(id, String(url), body);
+      waits[id] = { ok, ko, t: setTimeout(() => window.nmFail(id, 'timeout'), body ? 90000 : 8000) };
+      NamoidBridge.request(id, String(url), body);
     });
   };
-  window.vxStatus = (st, txt) => {
+  window.nmStatus = (st, txt) => {
     connected = st === 2;
     $('#cled').className = 'led' + (st === 2 ? ' on' : st === 1 ? ' busy' : '');
     $('#ctext').textContent = st === 2 ? 'Bluetooth' : st === 1 ? '…' : 'off';
@@ -790,14 +790,14 @@ const svg = (k, cls) => '<svg class="i' + (cls ? ' ' + cls : '') + '" viewBox="0
 /* ===================== tema ===================== */
 const mq = window.matchMedia('(prefers-color-scheme: light)');
 let themePref = 'auto';
-try { themePref = localStorage.getItem('vxTheme') || 'auto'; } catch(e) {}
+try { themePref = localStorage.getItem('nmTheme') || 'auto'; } catch(e) {}
 function applyTheme(){
   const light = themePref === 'light' || (themePref === 'auto' && mq.matches);
   document.documentElement.dataset.theme = light ? 'light' : 'dark';
   document.querySelectorAll('#sthm button').forEach(b => b.classList.toggle('on', b.dataset.t === themePref));
-  try { window.VXBridge && VXBridge.theme && VXBridge.theme(!light); } catch(e) {}
+  try { window.NamoidBridge && NamoidBridge.theme && NamoidBridge.theme(!light); } catch(e) {}
 }
-function setTheme(t){ themePref = t; try { localStorage.setItem('vxTheme', t); } catch(e) {} applyTheme(); }
+function setTheme(t){ themePref = t; try { localStorage.setItem('nmTheme', t); } catch(e) {} applyTheme(); }
 mq.addEventListener && mq.addEventListener('change', applyTheme);
 document.querySelectorAll('#sthm button').forEach(b => b.onclick = () => setTheme(b.dataset.t));
 applyTheme();
@@ -1113,7 +1113,7 @@ async function loadPreset(i){ if (i < 0) return toast('No presets stored'); try 
 $('#pprev').onclick = () => loadPreset(nextSlot(-1));
 $('#pnext').onclick = () => loadPreset(nextSlot(1));
 $('#pname').onclick = () => openPresets('load');
-$('#bconn').onclick = () => { try { VXBridge.connect(); } catch(e) {} };
+$('#bconn').onclick = () => { try { NamoidBridge.connect(); } catch(e) {} };
 
 /* ===================== CHAIN ===================== */
 const gut = (ln, inner) => '<div class="gut">' + ln + (inner || '') + '</div>';
@@ -1851,7 +1851,7 @@ function a2C(cfg){
 const CRCT = (() => { const t = new Uint32Array(256); for (let i = 0; i < 256; i++){ let c = i; for (let k = 0; k < 8; k++) c = c & 1 ? 0xEDB88320 ^ (c >>> 1) : c >>> 1; t[i] = c >>> 0; } return t; })();
 function crc32(u){ let c = 0xFFFFFFFF; for (let i = 0; i < u.length; i++) c = CRCT[(c ^ u[i]) & 255] ^ (c >>> 8); return (c ^ 0xFFFFFFFF) >>> 0; }
 function nameBytes(s){ let nm = new TextEncoder().encode(s); while (nm.length > 63) nm = new TextEncoder().encode(new TextDecoder().decode(nm.slice(0, nm.length - 1)).replace(/\uFFFD$/, '')); return nm; }
-/* .nam (JSON) -> blob VXN1 con i pesi A2 Lite e/o Full, cosi' come sono nel file */
+/* .nam (JSON) -> cattura NMC1 con i pesi A2 Lite e/o Full, cosi' come sono nel file */
 function namToVxn(d, fname){
   if ((d.sample_rate || 48000) !== 48000) throw new Error('capture at ' + d.sample_rate + ' Hz: 48 kHz is required');
   const subs = d.architecture === 'SlimmableContainer' ? (d.config.submodels || []).map(s => s.model) : [d];
@@ -1866,7 +1866,7 @@ function namToVxn(d, fname){
   const md = d.metadata || {}, nl = lite ? lite.length : 0, nf = full ? full.length : 0;
   const buf = new ArrayBuffer(128 + 4 * (nl + nf)), dv = new DataView(buf), u8 = new Uint8Array(buf);
   const W = new Float32Array(buf, 128); if (lite) W.set(lite, 0); if (full) W.set(full, nl);
-  u8.set([86, 88, 78, 49], 0);
+  u8.set([78, 77, 67, 49], 0);                                   /* "NMC1": cattura Namoid */
   dv.setUint32(4, 128, true); dv.setUint32(8, nl, true); dv.setUint32(12, nf, true);
   dv.setFloat32(16, 48000, true);
   dv.setFloat32(20, md.input_level_dbu ?? NaN, true); dv.setFloat32(24, md.output_level_dbu ?? NaN, true);
@@ -1918,7 +1918,7 @@ function irToVxi(x, name){
   const g = 1 / Math.sqrt(e), n = x.length;
   const buf = new ArrayBuffer(128 + 4 * n), dv = new DataView(buf), u8 = new Uint8Array(buf), W = new Float32Array(buf, 128);
   for (let i = 0; i < n; i++) W[i] = x[i] * g;
-  u8.set([86, 88, 73, 49], 0);
+  u8.set([78, 77, 73, 49], 0);                                   /* "NMI1": IR Namoid */
   dv.setUint32(4, 128, true); dv.setUint32(8, n, true); dv.setFloat32(12, 48000, true); dv.setFloat32(16, g, true);
   u8.set(nameBytes(name.replace(/\.wav$/i, '').trim() || 'IR'), 32);
   dv.setUint32(96, crc32(new Uint8Array(buf, 128)), true);
@@ -2021,21 +2021,21 @@ function setupT3k(){
   if (!APP) return;
   const k = $('#t3kid'); if (document.activeElement !== k) k.value = t3key();
   $('#t3ksave').onclick = () => { try { localStorage.setItem('t3k.cid', k.value.trim()); } catch(e) {} toast(k.value.trim() ? 'TONE3000 key saved' : 'TONE3000 key removed'); renderT3k(); };
-  $('#t3kout').onclick = () => { VXBridge.t3kLogout(); T3 = null; toast('Signed out of TONE3000'); renderT3k(); };
+  $('#t3kout').onclick = () => { NamoidBridge.t3kLogout(); T3 = null; toast('Signed out of TONE3000'); renderT3k(); };
 }
 function renderT3k(){
   const e = $('#t3k'); if (!e) return;
   e.classList.toggle('hid', !APP || libTab === 'ps');
   if (!APP || libTab === 'ps') return;
   e.innerHTML = t3kHTML();
-  const go = e.querySelector('[data-t3go]'); if (go) go.onclick = () => { lstat('Opening TONE3000 in the browser…'); VXBridge.t3kSelect(t3key(), libTab === 'cap' ? 'nam' : 'ir'); };
+  const go = e.querySelector('[data-t3go]'); if (go) go.onclick = () => { lstat('Opening TONE3000 in the browser…'); NamoidBridge.t3kSelect(t3key(), libTab === 'cap' ? 'nam' : 'ir'); };
   const st = e.querySelector('[data-t3set]'); if (st) st.onclick = () => { show('setup'); setTimeout(() => { const k = $('#t3kid'); if (k) { k.scrollIntoView({ block: 'center' }); k.focus(); } }, 300); };
   e.querySelectorAll('[data-t3m]').forEach(b => b.onclick = () => {
     const ms = ((T3.models && T3.models.data) || []).filter(m => libTab !== 'cap' || m.architecture_version === '2'), m = ms[+b.dataset.t3m];
     if (!m || !m.model_url) return;
     const base = (T3.tone && T3.tone.title ? T3.tone.title + ' ' : '') + (m.name || '');
     lstat('Downloading ' + (m.name || 'the model') + ' from TONE3000…');
-    VXBridge.t3kDownload(m.model_url, base.trim().slice(0, 60) + (libTab === 'cap' ? '.nam' : '.wav'));
+    NamoidBridge.t3kDownload(m.model_url, base.trim().slice(0, 60) + (libTab === 'cap' ? '.nam' : '.wav'));
   });
 }
 window.t3k = async (ev, o) => {
@@ -2307,7 +2307,7 @@ async function init(){
   refresh();
   poll();
 }
-if (APP) { $('#conncard').classList.remove('hid'); VXBridge.ready(); } else init();
+if (APP) { $('#conncard').classList.remove('hid'); NamoidBridge.ready(); } else init();
 </script>
 </body>
 </html>
