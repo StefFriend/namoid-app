@@ -383,6 +383,61 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
 .addr .dzb{flex:1;align-self:center}
 .dz{height:2px;border-radius:10px;transition:height .12s}
 .dz span{display:none}
+/* catena orizzontale: il segnale da sinistra a destra, i due percorsi uno sopra l'altro */
+.flow.hz{display:flex;flex-direction:column;gap:8px}
+.hzs{overflow-x:auto;overflow-y:hidden;margin:0 -16px;padding:22px 16px 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+.hzs::-webkit-scrollbar{display:none}
+.hzf{display:flex;align-items:center;width:max-content}
+.hzt{position:relative;width:64px;height:64px;flex:none;border-radius:16px;border:1.5px solid color-mix(in srgb,var(--c) 70%,transparent);background:color-mix(in srgb,var(--c) 18%,var(--s1));display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;color:var(--fg);font-size:10px;font-weight:700;letter-spacing:.4px;cursor:pointer;user-select:none;-webkit-user-select:none;-webkit-touch-callout:none}
+.hzt svg{width:22px;height:22px;color:var(--c)}
+.hzt.off{background:var(--s1);border-color:var(--line);color:var(--dim)}
+.hzt.off svg{color:var(--faint)}
+.hzt .dot{position:absolute;top:7px;right:7px;width:7px;height:7px;border-radius:4px;background:var(--c)}
+.hzt.off .dot{background:var(--line)}
+.hzt .hzsw{position:absolute;bottom:-8px;left:50%;transform:translateX(-50%);font-size:9px;padding:1px 5px;border-radius:6px;background:var(--s3);color:var(--mut);border:1px solid var(--line);white-space:nowrap}
+.hzt.sel{outline:2px solid var(--fg);outline-offset:3px}
+.hzt.amp{width:72px}
+.hzt.ghost2{border:1.5px dashed var(--dash);background:transparent;color:var(--faint);font-weight:600;letter-spacing:0;text-align:center;line-height:1.2;padding:0 4px}
+.hzt.ghost2 svg{color:var(--faint)}
+.hzl{height:2px;width:10px;flex:none;background:var(--dash)}
+.hzl.st{height:5px;background:none;border-top:1.5px solid var(--st);border-bottom:1.5px solid var(--st)}
+.hzl.p1{background:var(--drv)}.hzl.p2{background:var(--mod)}
+.hzl.grow{flex:1;min-width:10px}
+.hc{flex:none;width:30px;height:64px;display:flex;align-items:center;justify-content:center;position:relative}
+.hc::before{content:'';position:absolute;left:0;right:0;top:31px;height:2px;background:var(--dash)}
+.hc.st::before{top:30px;height:5px;background:none;border-top:1.5px solid var(--st);border-bottom:1.5px solid var(--st);box-sizing:border-box}
+.hc.p1::before{background:var(--drv)}.hc.p2::before{background:var(--mod)}
+.hc .plus{position:relative;width:22px;height:22px;min-height:22px;border-radius:11px;padding:0;display:flex;align-items:center;justify-content:center;background:var(--bg);border:1px solid var(--line);color:var(--mut)}
+.hc .plus svg{width:13px;height:13px}
+.hc .dzb{display:none}
+body.dragging .hc{width:52px}
+body.dragging .hc .plus{display:none}
+body.dragging .hc .dzb{display:flex;position:relative;width:44px;height:52px;border:1.5px dashed var(--dash);border-radius:12px;background:var(--bg)}
+body.dragging .hc.hot .dzb{border:1.5px solid var(--dc);background:color-mix(in srgb,var(--dc) 18%,var(--bg))}
+.hzn{width:38px;height:38px;flex:none;border-radius:19px;border:1.5px solid var(--dash);background:var(--s1);display:flex;align-items:center;justify-content:center;color:var(--mut)}
+.hzn svg{width:18px;height:18px}
+button.hzn{padding:0;min-height:0}
+.hzn.mg{border-color:var(--st);color:var(--st)}
+.hzio{flex:none;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;font-weight:700;letter-spacing:.6px;color:var(--mut)}
+.hzseg{display:flex;flex-direction:column;gap:22px;padding:4px 0}
+.hzseg{position:relative}
+.hzseg::before,.hzseg::after{content:'';position:absolute;top:36px;bottom:36px;width:2px;background:var(--dash)}
+.hzseg::before{left:0}.hzseg::after{right:0}
+.hzrow{display:flex;align-items:center;position:relative}
+.hzrow .lb{position:absolute;top:-18px;left:2px;font-size:10px;font-weight:700;letter-spacing:.8px;white-space:nowrap}
+.hzpar{display:flex;flex-direction:column;gap:10px;padding:8px;border-radius:18px;border:1px dashed color-mix(in srgb,var(--c) 50%,transparent);position:relative}
+.hzpar .lb{position:absolute;top:-17px;left:8px;font-size:9px;font-weight:700;letter-spacing:.6px;color:var(--c);white-space:nowrap}
+.hzmm{display:flex;gap:3px;height:4px}
+.hzmm i{flex:1;border-radius:2px;background:var(--s3)}
+.hzmm i.v{background:var(--dim)}
+.hzbar{display:flex;align-items:center;gap:10px;min-height:64px;padding:10px 12px;border-radius:18px;background:var(--s2);border:1px solid var(--line)}
+.hzbar .tx{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.hzbar .tx b{font-size:15px}
+.hzbar .tx span{font-size:12px;color:var(--mut)}
+.hzbar .ic{width:36px;height:36px;border-radius:12px;display:flex;align-items:center;justify-content:center;background:color-mix(in srgb,var(--c) 18%,transparent);color:var(--c);flex:none}
+.hzbar .ic svg{width:20px;height:20px}
+.hzacts{display:flex;gap:8px;flex-wrap:wrap}
+.hzacts .hbtn{flex:1;min-width:0}
 body.dragging .addr{height:40px}
 body.dragging .addr .plus{opacity:0}
 body.dragging .addr .dzb,body.dragging .dz span{display:flex}
@@ -1048,7 +1103,15 @@ function seqHTML(list, st, lastAnchor, zone){
 }
 function renderChain(){
   const bs = PK['blk.size']; if (bs && bs.n) $('#rblk').textContent = bs.n[Math.round(bs.v)];
+  if (listView()) renderFlowList(); else renderFlowH();
+  chainTail();
+}
+const listView = () => { try { return localStorage.getItem('chain.list') === '1'; } catch(e) { return false; } };
+function setListView(on){ try { localStorage.setItem('chain.list', on ? '1' : '0'); } catch(e) {} $('#flow')._h = null; renderChain(); }
+/* vista a elenco (verticale): quella di prima, a richiesta */
+function renderFlowList(){
   const { pre, post } = chainParts(), D = dual();
+  $('#flow').classList.remove('hz');
   let h = rowIO('in', false);
   if (D){
     const sp = pre.filter(b => !laneOf(b));
@@ -1083,6 +1146,7 @@ function renderChain(){
     h += rowAdd(false, 'amp', 'post') + rowZone(stpost, stpost ? 'STEREO · after the amp' : 'AFTER THE AMP') + seqHTML(post, stpost, 'amp', 'post');
   }
   h += rowIO('out', D || post.some(b => isOn(b) && /^(mod|dly|rev)/.test(b)));
+  h += '<button class="hbtn" data-listv style="margin-top:8px">Flow view (left to right)</button>';
   const F = $('#flow');
   if (put(F, h)) {
   F.querySelectorAll('[data-ed]').forEach(e => e.onclick = ev => { if (ev.target.closest('[data-pw]') || justDragged()) return; openEditor(e.dataset.ed, e.dataset.tab); });
@@ -1090,8 +1154,12 @@ function renderChain(){
   F.querySelectorAll('[data-add]').forEach(e => e.onclick = () => justDragged() || openAdd(e.dataset.add, +e.dataset.lane, e.dataset.before));
   F.querySelectorAll('[data-paths]').forEach(e => e.onclick = () => setPaths(+e.dataset.paths));
   F.querySelectorAll('[data-amp2on]').forEach(e => e.onclick = () => setv('amp2.on', 1));
+  F.querySelectorAll('[data-listv]').forEach(e => e.onclick = () => setListView(false));
   }
-  const tip = (D ? 'Hold a block and drag it: into Path 1 or Path 2, or above the split / below the merge to share it. A path works with or without an amp.'
+}
+function chainTail(){
+  const D = dual();
+  const tip = !listView() ? 'Left to right, guitar to output. Tap a block to select it, tap again to edit it; hold and drag to move it' + (D ? ', also between Path 1 and Path 2. Tap Merge for pan and balance.' : '.') + ' Drag a block to "Not in the chain" to remove it.' : (D ? 'Hold a block and drag it: into Path 1 or Path 2, or above the split / below the merge to share it. A path works with or without an amp.'
     : 'Hold a block and drag it to move it. "Split into two paths" gives two separate rigs, with or without amps.') +
     ' The power button bypasses a block; drag it to "Not in the chain" to remove it.';
   put($('#ctip'), svg('move') + '<span>' + esc(tip) + (hasSnap() && SN.act >= 0 ? ' Changes go into snapshot ' + 'ABCD'[SN.act] + (SN.names[SN.act] ? ' (' + SN.names[SN.act] + ')' : '') + '.' : '') + '</span>');
@@ -1100,6 +1168,100 @@ function renderChain(){
      '<span class="dzb rm">Drop here to remove</span>' + (sp.map(b => '<button class="sc" style="--c:' + cvar(b) + '" data-sp="' + b + '">' + svg(BLK[b].i) + esc(BLK[b].name) + '</button>').join('') || '<span class="note">Every block is in use.</span>') + '</div>')) {
   $('#spadd').onclick = () => openAdd(lastAnchor(), 0, null, null, true);
   $('#spare').querySelectorAll('[data-sp]').forEach(e => e.onclick = () => justDragged() || openAdd(lastAnchor(), 0, null, e.dataset.sp, true));
+  }
+}
+/* ===================== catena orizzontale =====================
+   Il segnale va da sinistra a destra. Con due percorsi: Split, Path 1 sopra e Path 2 sotto, Merge.
+   Un tocco seleziona il blocco (barra sotto: accensione, Edit); un secondo tocco apre l'editor.
+   Tieni premuto e trascina per spostarlo, anche nell'altro percorso. Il "+" fra i blocchi aggiunge li'. */
+let hzSel = null, hzScroll = 0;
+const panLbl = v => { const r = Math.round(v); return Math.abs(r) < 5 ? 'C' : (r < 0 ? 'L ' : 'R ') + Math.abs(r); };
+function hzTile(b, extra){
+  const on = isOn(b), sw = fsOf(b);
+  return '<div class="hzt' + (on ? '' : ' off') + (b === hzSel ? ' sel' : '') + (extra || '') + '" style="--c:' + cvar(b) + '" data-ed="' + b + '" role="button" tabindex="0" aria-label="' + esc(BLK[b].name) + (on ? '' : ' (bypassed)') + '">' +
+    '<i class="dot"></i>' + svg(BLK[b].i) + '<span>' + esc(BLK[b].ab) + '</span>' + (sw.length ? '<span class="hzsw">' + sw.join('') + '</span>' : '') + '</div>';
+}
+/* spazio fra due blocchi: "+" per aggiungere, bersaglio durante il trascinamento */
+const hzGap = (after, before, lane, zone, cls) => '<div class="hc' + (cls ? ' ' + cls : '') + '"' + dropAttr(after, before, lane, zone) + '>' +
+  '<button class="plus" data-add="' + (after || '') + '"' + (before ? ' data-before="' + before + '"' : '') + ' data-lane="' + (lane || 0) + '" aria-label="Add a block here">' + svg('plus') + '</button><span class="dzb"></span></div>';
+/* sequenza in serie; le coppie in parallelo (entrambe nella catena) una sopra l'altra */
+function hzSeq(list, start, lane, zone, cls){
+  let h = '', done = {}, prev = start;
+  list.forEach(b => {
+    if (done[b]) return;
+    const q = pairOf(b);
+    if (q && isPar(b) && list.includes(q[0]) && list.includes(q[1])) {
+      done[q[0]] = done[q[1]] = 1;
+      h += '<div class="hzpar" style="--c:' + cvar(q[0]) + '"><span class="lb">SIDE BY SIDE</span>' + hzTile(q[0]) + hzTile(q[1]) + '</div>';
+      prev = q[1];
+    } else { done[b] = 1; h += hzTile(b); prev = b; }
+    h += hzGap(prev, '', lane, zone, cls);
+  });
+  return h;
+}
+function renderFlowH(){
+  const { pre, post } = chainParts(), D = dual(), F = $('#flow');
+  F.classList.add('hz');
+  const stp = post.some(b => isOn(b) && /^(mod|dly|rev|stu)/.test(b));
+  let h = '<div class="hzio"><span class="hzn">' + svg('input') + '</span>IN</div><span class="hzl"></span>';
+  if (D){
+    const sp = pre.filter(b => !laneOf(b));
+    h += hzGap('', '', 0, 'pre') + hzSeq(sp, '', 0, 'pre');
+    h += '<span class="hzn" title="Split into two paths">' + svg('split') + '</span>';
+    const p1 = PK['amp.pan1'], p2 = PK['amp.pan2'];
+    const row = (n, amp, cls, pan) => {
+      const lp = pre.filter(b => laneOf(b) === n), lq = post.filter(b => laneOf(b) === n);
+      let r = '<div class="hzrow"><span class="lb" style="color:' + (n === 1 ? 'var(--drv)' : 'var(--mod)') + '">PATH ' + n + (pan ? ' · ' + pan : '') + '</span><span class="hzl ' + cls + '"></span>';
+      r += hzGap(lp.length ? '' : '', lp.length ? lp[0] : 'amp', n, 'pre', cls);
+      lp.forEach((b, i) => { r += hzTile(b) + hzGap(b, i + 1 < lp.length ? lp[i + 1] : 'amp', n, 'pre', cls); });
+      if (amp === 'amp2' && !inChain('amp2')) r += hasBlk('amp2') ? '<button class="hzt ghost2" data-amp2on>' + svg('amp') + 'add Amp 2</button>' : '<span class="hzt ghost2">' + svg('amp') + 'no amp</span>';
+      else r += hzTile(amp, ' amp');
+      r += hzGap('amp', '', n, 'post', cls);
+      lq.forEach(b => { r += hzTile(b) + hzGap(b, '', n, 'post', cls); });
+      return r + '<span class="hzl grow ' + cls + '"></span></div>';
+    };
+    h += '<div class="hzseg">' + row(1, 'amp', 'p1', p1 ? panLbl(p1.v) : 'L') + row(2, 'amp2', 'p2', p2 ? panLbl(p2.v) : 'R') + '</div>';
+    h += '<button class="hzn mg" data-ed="amp" data-tab="route" title="Merge: pan and balance of the paths" aria-label="Merge: pan and balance">' + svg('merge') + '</button><span class="hzl st"></span>';
+    const sq = post.filter(b => !laneOf(b));
+    h += hzGap('amp', '', 0, 'post', 'st') + hzSeq(sq, 'amp', 0, 'post', 'st');
+  } else {
+    h += hzGap('', '', 0, 'pre') + hzSeq(pre, '', 0, 'pre');
+    h += hzTile('amp', ' amp');
+    if (inChain('amp2')) h += '<span class="hzl"></span>' + hzTile('amp2', ' amp');
+    h += hzGap('amp', '', 0, 'post', stp ? 'st' : '') + hzSeq(post, 'amp', 0, 'post', stp ? 'st' : '');
+  }
+  h += '<span class="hzl' + (D || stp ? ' st' : '') + '"></span><div class="hzio"><span class="hzn">' + svg('out') + '</span>OUT</div>';
+  /* barra del blocco scelto */
+  let bar;
+  if (hzSel && BLK[hzSel] && inChain(hzSel)){
+    const b = hzSel, on = isOn(b), sw = fsOf(b);
+    bar = '<div class="hzbar" style="--c:' + cvar(b) + '"><span class="ic">' + svg(BLK[b].i) + '</span><div class="tx"><b class="ell">' + esc(BLK[b].name) +
+      (sw.length ? ' <span class="chip2">SWITCH ' + sw.join(' ') + '</span>' : '') + (on ? '' : ' <span class="chip2" style="--cc:var(--dim)">BYPASSED</span>') + '</b><span class="ell">' + esc(blockSub(b)) + '</span></div>' +
+      '<button class="hbtn" data-ed="' + b + '" data-tab="sound" style="height:40px;min-height:40px">Edit</button>' +
+      '<button class="pwr' + (on ? ' on' : '') + '" style="--c:' + cvar(b) + '" data-pw="' + b + '" aria-pressed="' + on + '" aria-label="' + esc(BLK[b].name) + ' on or off">' + svg('power') + '</button></div>';
+  } else bar = '<div class="hzbar" style="--c:var(--mut)"><span class="ic">' + svg('move') + '</span><div class="tx"><b>Tap a block</b><span>Tap again to edit it. Hold and drag to move it' + (D ? ', also into the other path' : '') + '.</span></div></div>';
+  const acts = '<div class="hzacts">' + (PK['paths'] ? (D ? '<button class="hbtn" data-paths="0">One path</button><button class="hbtn" data-ed="amp" data-tab="route">' + svg('merge') + '<span style="margin-left:6px">Mix</span></button>'
+      : '<button class="hbtn" data-paths="1">' + svg('split') + '<span style="margin-left:6px">Split into two paths</span></button>') : '') +
+    '<button class="hbtn" data-listv>List view</button></div>';
+  const keep = F.querySelector('.hzs'); if (keep) hzScroll = keep.scrollLeft;
+  if (put(F, '<div class="hzs"><div class="hzf">' + h + '</div></div><div class="hzmm" aria-hidden="true"></div>' + bar + acts)) {
+    const sc = F.querySelector('.hzs'); sc.scrollLeft = hzScroll;
+    const mm = () => { const n = 10, w = sc.scrollWidth, v = sc.clientWidth, x = sc.scrollLeft, M = F.querySelector('.hzmm');
+      M.style.visibility = w > v + 4 ? '' : 'hidden';
+      M.innerHTML = Array.from({ length: n }, (_, i) => '<i class="' + ((i + 1) / n * w > x && i / n * w < x + v ? 'v' : '') + '"></i>').join(''); };
+    sc.onscroll = () => { hzScroll = sc.scrollLeft; mm(); }; requestAnimationFrame(mm);
+    F.querySelectorAll('.hzt[data-ed]').forEach(e => e.onclick = () => {
+      if (justDragged()) return;
+      const b = e.dataset.ed;
+      if (hzSel === b) return openEditor(b);
+      hzSel = b; renderChain();
+    });
+    F.querySelectorAll('[data-ed][data-tab]').forEach(e => e.onclick = () => { if (!justDragged()) openEditor(e.dataset.ed, e.dataset.tab); });
+    F.querySelectorAll('[data-pw]').forEach(e => e.onclick = ev => { ev.stopPropagation(); const p = onP(e.dataset.pw); if (p) setv(p.k, p.v > 0.5 ? 0 : 1); });
+    F.querySelectorAll('[data-add]').forEach(e => e.onclick = () => justDragged() || openAdd(e.dataset.add, +e.dataset.lane, e.dataset.before));
+    F.querySelectorAll('[data-paths]').forEach(e => e.onclick = () => setPaths(+e.dataset.paths));
+    F.querySelectorAll('[data-amp2on]').forEach(e => e.onclick = () => setv('amp2.on', 1));
+    F.querySelectorAll('[data-listv]').forEach(e => e.onclick = () => setListView(true));
   }
 }
 /* due percorsi sì/no. Tornando a uno: se i percorsi venivano da Amp + Amp 2 in parallelo, Amp 2 si spegne */
@@ -1163,6 +1325,9 @@ function dBegin(){
   const scroll = () => { if (!DG || !DG.on) return; const h = innerHeight, top = 110, bot = h - 130;
     if (Math.abs(DG.y - DG.y0) > 40 || DG.moved) { DG.moved = 1;
       if (DG.y < top) scrollBy(0, -Math.ceil((top - DG.y) / 8)); else if (DG.y > bot) scrollBy(0, Math.ceil((DG.y - bot) / 8)); }
+    const hs = $('#flow .hzs');                   /* catena orizzontale: scorre di lato vicino ai bordi */
+    if (hs && (Math.abs(DG.x - DG.x0) > 30 || DG.movedX)) { DG.movedX = 1; const r = hs.getBoundingClientRect();
+      if (DG.y > r.top - 40 && DG.y < r.bottom + 40) { if (DG.x < r.left + 50) hs.scrollLeft -= Math.ceil((r.left + 50 - DG.x) / 5); else if (DG.x > r.right - 50) hs.scrollLeft += Math.ceil((DG.x - r.right + 50) / 5); } }
     dHit(); requestAnimationFrame(scroll); };
   requestAnimationFrame(scroll);
 }
@@ -1191,7 +1356,7 @@ function dHit(){
           if (!slotOk(z)) return;
           const r = z.getBoundingClientRect();
           const dx = x < r.left ? r.left - x : x > r.right ? x - r.right : 0, dy = y < r.top ? r.top - y : y > r.bottom ? y - r.bottom : 0;
-          const d = Math.hypot(dx * 1.5, dy); if (d < bd) { bd = d; best = z; }
+          const hz = z.classList.contains('hc'), d = hz ? Math.hypot(dx, dy * 1.5) : Math.hypot(dx * 1.5, dy); if (d < bd) { bd = d; best = z; }
         });
         if (best) tg = { kind: 'slot', el: best };
       }
