@@ -68,9 +68,32 @@ def inspect_image(data):
     magic = struct.unpack_from("<I", data, 0x20)[0]
     if magic != 0xABCD5432:
         raise ValueError("application description missing: is this a bootloader or a raw dump?")
-    version = data[0x30:0x50].split(b"\0")[0].decode("ascii", "replace")
-    project = data[0x50:0x70].split(b"\0")[0].decode("ascii", "replace")
-    return {"project": project, "version": version, "size": len(data)}
+    d = app_desc(data)
+    d["size"] = len(data)
+    return d
+
+
+def app_desc(head):
+    """esp_app_desc_t (at 0x20 of an app image): project, version, build date/time, ELF SHA-256."""
+    t = lambda a, b: head[a:b].split(b"\0")[0].decode("ascii", "replace").strip()
+    return {"project": t(0x50, 0x70), "version": t(0x30, 0x50), "time": t(0x70, 0x80), "date": t(0x80, 0x90),
+            "idf": t(0x90, 0xB0), "sha": head[0xB0:0xD0].hex()}
+
+
+def known_files():
+    """firmware .bin next to the program, by ELF SHA-256 (to say which file is on the pedal)"""
+    out = {}
+    for d in (os.path.join(HERE, "firmware"), HERE, os.path.join(HERE, "..", "firmware")):   # also VoidX-Lab\\firmware
+        if not os.path.isdir(d):
+            continue
+        for n in sorted(os.listdir(d)):
+            if n.lower().endswith(".bin"):
+                try:
+                    with open(os.path.join(d, n), "rb") as f:
+                        out.setdefault(inspect_image(f.read(0x100))["sha"], n)
+                except (OSError, ValueError):
+                    pass
+    return out
 
 
 def is_blank(data):
@@ -150,11 +173,54 @@ def list_ports():
     return out
 
 
-def read_ptable(port, log):
-    tmp = os.path.join(BACKUPS, "_ptable.bin")
-    run(esptool_cmd(port, "read_flash", hex(PT_ADDR), hex(PT_LEN), tmp), log)   # then the pedal restarts normally
-    with open(tmp, "rb") as f:
-        return parse_ptable(f.read())
+def read_pedal(port, log):
+    """one connection: partition table + the header of every firmware partition (which firmware, which version).
+    Only reads; at the end the pedal restarts normally."""
+    import contextlib
+    from esptool.cmds import detect_chip
+    w = _LogWriter(log)
+    esp = None
+    try:
+        with contextlib.redirect_stdout(w), contextlib.redirect_stderr(w):
+            esp = detect_chip(port, 115200, "default_reset", False, 7)
+            if esp.CHIP_NAME != "ESP32-S3":
+                raise RuntimeError("this is a %s, not the pedal's ESP32-S3" % esp.CHIP_NAME)
+            esp = esp.run_stub()
+            esp.change_baud(BAUD)
+            parts = parse_ptable(esp.read_flash(PT_ADDR, PT_LEN))
+            for p in app_parts(parts):
+                h = esp.read_flash(p["offset"], 0x100)
+                if is_blank(h):
+                    p["fw"] = None
+                else:
+                    try:
+                        p["fw"] = inspect_image(h)
+                    except ValueError:
+                        p["fw"] = {"bad": True}
+            esp.hard_reset()
+    except RuntimeError:
+        raise
+    except Exception as e:
+        raise RuntimeError("could not read the pedal: %s" % e)
+    finally:
+        w.write("\n")
+        try:
+            if esp is not None:
+                esp._port.close()
+        except Exception:
+            pass
+    return parts
+
+
+def describe(fw, files):
+    if fw is None:
+        return "empty"
+    if fw.get("bad"):
+        return "not a valid firmware"
+    s = "%s %s, built %s %s" % (fw["project"], fw["version"], fw["date"], fw["time"])
+    if fw["sha"] in files:
+        s += "  =  %s" % files[fw["sha"]]
+    return s
 
 
 def backup_part(port, part, log):
@@ -286,7 +352,7 @@ def gui():
         st["file"], st["img"] = p, img
         where = KNOWN.get(img["project"], (None, "unknown project: choose where it goes"))[1]
         file_lbl.config(text="%s  -  %s, %d KB  (%s)" % (os.path.basename(p), img["project"], img["size"] // 1024, where), foreground="")
-        log("Firmware: %s, project %s, version %s, %d KB" % (os.path.basename(p), img["project"], img["version"], img["size"] // 1024))
+        log("Firmware: %s, project %s, version %s, built %s %s, %d KB" % (os.path.basename(p), img["project"], img["version"], img["date"], img["time"], img["size"] // 1024))
         fill_parts()
     ttk.Button(frm, text="Choose...", command=choose).grid(row=1, column=2)
 
@@ -294,10 +360,18 @@ def gui():
         pt = port()
         if not pt:
             raise RuntimeError("no port: connect the pedal with USB and press Refresh")
-        log("Reading the partition table from the pedal on %s..." % pt)
-        st["parts"] = read_ptable(pt, log)
+        log("Reading the pedal on %s..." % pt)
+        st["parts"] = read_pedal(pt, log)
+        files = known_files()
+        log("On the pedal:")
         for p in st["parts"]:
-            log("  %-9s 0x%06X  %5d KB  %s" % (p["label"], p["offset"], p["size"] // 1024, LABELS.get(p["label"], "")))
+            line = "  %-9s 0x%06X  %5d KB  %-16s" % (p["label"], p["offset"], p["size"] // 1024, LABELS.get(p["label"], ""))
+            if "fw" in p:
+                line += describe(p["fw"], files)
+            log(line)
+        if st["img"]:
+            same = [p["label"] for p in st["parts"] if (p.get("fw") or {}).get("sha") == st["img"]["sha"]]
+            log("The chosen file is " + ("already installed in " + ", ".join(same) if same else "not on the pedal yet") + ".")
         root.after(0, fill_parts)
     ttk.Button(btns, text="Read pedal", command=lambda: worker(read_table)).pack(side="left")
 
@@ -328,6 +402,8 @@ def gui():
             if not ok[0]:
                 log("Cancelled.")
                 return
+        if (part.get("fw") or {}).get("sha") == img["sha"]:
+            log("Note: %s already holds this same firmware; installing it again anyway." % part["label"])
         if bk_var.get():
             backup_part(pt, part, log)
         log("Installing into %s at 0x%X..." % (part["label"], part["offset"]))
