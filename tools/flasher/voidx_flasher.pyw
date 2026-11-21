@@ -343,5 +343,31 @@ def gui():
     root.mainloop()
 
 
+def selftest():
+    """for the build machine: everything the .exe needs is inside (no pedal, no window)"""
+    lines = []
+    try:
+        import tkinter  # noqa: F401
+        import esptool
+        from esptool.loader import StubFlasher
+        from serial.tools import list_ports  # noqa: F401
+        st = StubFlasher("esp32s3")
+        lines.append("esptool %s, esp32s3 stub %d bytes" % (esptool.__version__, len(st.text)))
+        try:
+            run(["--chip", "esp32s3", "erase_flash"], lambda *a, **k: None)
+            lines.append("FAIL: erase_flash not blocked")
+        except RuntimeError:
+            lines.append("erase_flash blocked")
+        ok = not any(l.startswith("FAIL") for l in lines)
+    except Exception as e:
+        lines.append("FAIL: %r" % (e,))
+        ok = False
+    with open(os.path.join(HERE, "selftest.txt"), "w") as f:
+        f.write("\n".join(lines) + "\n" + ("OK" if ok else "FAILED") + "\n")
+    sys.exit(0 if ok else 1)
+
+
 if __name__ == "__main__":
+    if "--selftest" in sys.argv:
+        selftest()
     gui()

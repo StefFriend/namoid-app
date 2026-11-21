@@ -23,6 +23,14 @@ jobs:
       - name: Compila un unico .exe
         working-directory: tools/flasher
         run: pyinstaller --noconfirm --onefile --windowed --name VoidX-Flasher --collect-all esptool --hidden-import serial.tools.list_ports voidx_flasher.pyw
+      - name: Prova dell'exe (tutto incluso, senza pedale)
+        working-directory: tools/flasher
+        shell: pwsh
+        run: |
+          $p = Start-Process -FilePath dist\VoidX-Flasher.exe -ArgumentList '--selftest' -Wait -PassThru
+          Get-Content dist\selftest.txt
+          if ($p.ExitCode -ne 0) { exit 1 }
+          Remove-Item dist\selftest.txt
       - uses: actions/upload-artifact@v4
         with:
           name: VoidX-Flasher-exe
