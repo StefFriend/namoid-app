@@ -77,6 +77,7 @@ class MainActivity : Activity() {
     private var chunkIdx = 0
     private val resp = ByteArrayOutputStream()
     private var fileCb: ValueCallback<Array<Uri>>? = null
+    private lateinit var t3k: T3k
 
     @SuppressLint("SetJavaScriptEnabled")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -101,6 +102,8 @@ class MainActivity : Activity() {
         web.addJavascriptInterface(Bridge(), "VXBridge")
         setContentView(web)
         web.loadUrl("file:///android_asset/index.html")
+        t3k = T3k(this) { code -> js(code) }
+        pendingLink = intent?.data
         adapter = (getSystemService(Context.BLUETOOTH_SERVICE) as BluetoothManager).adapter
     }
 
@@ -115,6 +118,15 @@ class MainActivity : Activity() {
         super.onActivityResult(requestCode, resultCode, data)
     }
 
+    /* ritorno da TONE3000 (voidxfx://t3k): l'attivita' e' singleTask, arriva qui */
+    private var pendingLink: Uri? = null
+    private var pageReady = false
+    override fun onNewIntent(intent: Intent?) {
+        super.onNewIntent(intent)
+        val u = intent?.data ?: return
+        if (pageReady) t3k.handle(u) else pendingLink = u
+    }
+
     override fun onDestroy() {
         wantConnected = false
         h.post { stopScan(); closeGatt() }
@@ -124,7 +136,12 @@ class MainActivity : Activity() {
 
     /* ---------------- ponte con la pagina ---------------- */
     inner class Bridge {
-        @JavascriptInterface fun ready() { ui.post { ensurePermsAndConnect() } }
+        @JavascriptInterface fun ready() { ui.post { pageReady = true; pendingLink?.let { t3k.handle(it) }; pendingLink = null; ensurePermsAndConnect() } }
+        /* TONE3000 */
+        @JavascriptInterface fun t3kSelect(clientId: String, format: String) { ui.post { t3k.select(clientId, format) } }
+        @JavascriptInterface fun t3kDownload(url: String, name: String) { t3k.download(url, name) }
+        @JavascriptInterface fun t3kLogout() { t3k.logout() }
+        @JavascriptInterface fun t3kLoggedIn(): Boolean = t3k.loggedIn()
         @JavascriptInterface fun connect() { ui.post { wantConnected = true; ensurePermsAndConnect() } }
         /* tema della pagina: barre di sistema dello stesso colore, icone chiare o scure */
         @JavascriptInterface fun theme(dark: Boolean) { ui.post { applyBars(dark) } }

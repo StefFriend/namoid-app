@@ -194,6 +194,8 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
 .seg{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(0,1fr);padding:3px;border-radius:12px;background:var(--s3);border:1px solid var(--line)}
 .seg button{min-height:36px;height:36px;border:none;border-radius:9px;background:transparent;color:var(--mut);font-size:13px;font-weight:600;padding:0 6px}
 .seg button.on{background:var(--s2);color:var(--fg)}
+.seg.wrap{grid-auto-flow:row;grid-template-columns:repeat(4,minmax(0,1fr));row-gap:3px}
+.seg.wrap button{font-size:12px;padding:0 3px}
 .segw{display:flex;flex-direction:column;gap:8px}
 .segw>span{font-size:13px;font-weight:600}
 .models{display:flex;flex-wrap:wrap;gap:6px}
@@ -244,6 +246,17 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
 .ab span{font-size:11.5px;color:var(--mut);line-height:1.4}
 .ab.on{background:var(--s2);border:1.5px solid var(--c);box-shadow:0 0 20px color-mix(in srgb,var(--c) calc(20% * var(--glow)),transparent)}
 .cta{height:54px;border-radius:16px;border:none;font-size:15px;font-weight:700;background:var(--c,var(--inv));color:var(--onacc)}
+.t3k{display:flex;flex-direction:column;gap:10px;padding:14px;border-radius:16px;background:var(--s2);border:1px solid var(--line)}
+.t3k .hd{display:flex;align-items:center;gap:10px}
+.t3k .lg{font-weight:800;letter-spacing:.5px;font-size:15px}
+.t3k .lg i{font-style:normal;color:var(--mut);font-weight:600;font-size:12px;letter-spacing:0;margin-left:6px}
+.t3k .tone{display:flex;gap:10px;align-items:center}
+.t3k .tone img{width:44px;height:44px;border-radius:10px;object-fit:cover;background:var(--s3);flex:none}
+.t3k .tone .tx{min-width:0;display:flex;flex-direction:column}
+.t3k .mods{display:flex;flex-direction:column;gap:6px}
+.t3k .mods button{display:flex;justify-content:space-between;align-items:center;gap:8px;min-height:44px;padding:0 12px;border-radius:12px;text-align:left}
+.t3k .mods button span{color:var(--mut);font-size:12px;flex:none}
+#adogo{position:sticky;bottom:0;flex:none;z-index:2;box-shadow:0 -10px 0 var(--sheet),0 8px 24px rgba(0,0,0,.3)}
 .pedal{padding:16px 12px 12px;border-radius:18px;background:#1C1F26;border:1px solid #30353F;box-shadow:inset 0 1px 0 rgba(255,255,255,.07),0 10px 24px rgba(0,0,0,.35);display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px}
 .pedal button{display:flex;flex-direction:column;align-items:center;gap:8px;background:transparent;border:none;padding:0;min-height:0}
 .pedal .pl{width:8px;height:8px;border-radius:4px;background:#3A404C}
@@ -264,6 +277,9 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:24px;heigh
 
 /* preset */
 .pgrid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+.seg.pbank button{font-size:12px;padding:0 2px}
+#pbank{display:flex;flex-direction:column;gap:8px}
+#pbank:empty{display:none}
 .ps{height:64px;border-radius:16px;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;gap:2px;padding:0 12px;text-align:left;background:var(--s1)}
 .ps .n{font-size:11px;color:var(--mut);display:flex;align-items:center;gap:6px;font-family:'Space Grotesk';font-weight:600}
 .ps b{font-family:'Space Grotesk';font-size:15px;max-width:100%}
@@ -464,6 +480,7 @@ body.dragging .dhint{display:flex}
   <section class="view" id="v-lib">
     <div class="tabs3" role="tablist"><button class="on" data-l="ps">Presets</button><button data-l="cap">Amps</button><button data-l="ir">Cabs</button></div>
     <div id="lps" class="view on" style="gap:12px">
+      <div id="pbank" class="col"></div>
       <div class="pgrid" id="pgrid"></div>
       <div class="acts"><button class="prim" id="pload">Load</button><button id="psave">Save here</button><button id="pdel">Delete</button></div>
       <span class="note">Tap a slot to select it, double-tap to load it. Saving stores the whole chain, the footswitch layout stays the same for all presets.</span>
@@ -471,6 +488,7 @@ body.dragging .dhint{display:flex}
     <div id="lfiles" class="view" style="gap:12px">
       <div class="load"><div class="row small mut"><span class="sp" id="lused">–</span><span id="lhint"></span></div><div class="cells" id="lcells"></div></div>
       <div class="list" id="llist"></div>
+      <div class="t3k hid" id="t3k"></div>
       <label class="add" id="ladd"><svg class="i" viewBox="0 0 24 24"><path d="M12 5v14M5 12h14"/></svg><b id="laddt">Add</b><span class="small mut" id="laddn"></span><input type="file" id="lfile"></label>
       <div class="status" id="lst"></div>
     </div>
@@ -513,6 +531,12 @@ body.dragging .dhint{display:flex}
     </div>
     <div class="card">
       <div class="optr"><div class="tx"><b>Theme</b><span>Auto follows the phone</span></div><div class="seg" id="sthm" style="width:200px"><button data-t="auto">Auto</button><button data-t="dark">Dark</button><button data-t="light">Light</button></div></div>
+    </div>
+    <div class="card hid" id="st3k" style="display:flex;flex-direction:column;gap:10px">
+      <div class="tx"><b>TONE3000</b><span class="small mut" style="display:block">Browse the TONE3000 library of NAM captures and IRs and send them to the pedal from Library › Amps or Cabs.</span></div>
+      <input id="t3kid" placeholder="TONE3000 publishable key" autocomplete="off" spellcheck="false" style="height:44px;border-radius:12px;padding:0 12px;background:var(--s3);border:1px solid var(--line);color:var(--fg);font-size:14px">
+      <div class="row"><button class="sp" id="t3ksave">Save key</button><button id="t3kout">Sign out</button></div>
+      <span class="note">One-time setup on tone3000.com › Settings › API: create an app key, add <b>voidxfx://t3k</b> as a redirect URI, then paste the publishable key here. The secret key is not needed and must not go in the app.</span>
     </div>
   </section>
 </main>
@@ -672,7 +696,7 @@ let P = [], G = [], PK = {}, S = null, PS = [], psCur = -1, CAPS = [], capAct = 
 let started = false, dragging = null, pending = {}, timer = null, engCur = 0, view = 'play', psSel = -1, libTab = 'ps';
 const BLK = {
   gate: {ab: 'GATE', c: 'dyn', i: 'gate', name: 'Noise gate', d: 'Silences hiss and hum when you stop playing.'},
-  acou: {ab: 'PICKUP', c: 'aco', i: 'pkup', name: 'Pickup sim', d: 'Turns your single coil into a humbucker, a P-90, other single coils, or an acoustic through its piezo.'},
+  acou: {ab: 'PICKUP', c: 'aco', i: 'pkup', name: 'Pickup sim', d: 'Turns the pickup on your guitar into another one (humbucker, P-90, single coils, neck or bridge) or into an acoustic through its piezo. Blend mixes in your dry pickup.'},
   filt: {ab: 'FILTER', c: 'flt', i: 'filt', name: 'Filter', d: 'Wah with an expression pedal, auto-wah, envelope and step filters, bitcrusher and lo-fi radio or phone.'},
   vol:  {ab: 'VOLUME', c: 'vol', i: 'vol', name: 'Volume', d: 'Volume pedal for an expression pedal, or an automatic swell that fades every note in.'},
   stu:  {ab: 'STUDIO', c: 'stu', i: 'stu', name: 'Studio FX', d: 'One big algorithm at a time: huge spaces, echo into reverb, multi-tap, resonators, rich modulation, studio dynamics and saturation.'},
@@ -686,6 +710,7 @@ const BLK = {
   rev:  {ab: 'REV', c: 'rev', i: 'rev', name: 'Reverb', d: 'Space: room, hall, plate, spring, shimmer, freeze, bloom, gated.'},
   acou2: {ab: 'PICKUP 2', c: 'aco', i: 'pkup', name: 'Pickup sim 2', d: 'A second pickup sim: one per path (for example acoustic on Path 1, humbucker on Path 2), or beside the first.'},
   stu2: {ab: 'STUDIO 2', c: 'stu', i: 'stu', name: 'Studio FX 2', d: 'A second Studio FX: one per path, after the first, or beside it.'},
+  comp2: {ab: 'COMP 2', c: 'dyn', i: 'comp', name: 'Compressor 2', d: 'A second compressor: one per path, or stacked after the first.'},
   drv2: {ab: 'DRIVE 2', c: 'drv', i: 'drv', name: 'Drive 2', d: 'A second drive: stack it, or run it beside Drive.'},
   mod2: {ab: 'MOD 2', c: 'mod', i: 'mod', name: 'Modulation 2', d: 'A second modulation, after or beside the first.'},
   dly2: {ab: 'DELAY 2', c: 'dly', i: 'dly', name: 'Delay 2', d: 'A second delay, for example a dotted eighth beside the first.'},
@@ -694,10 +719,10 @@ const BLK = {
 };
 const PK_AC = 8;          /* Pickup sim: i primi 8 modelli sono acustiche */
 const STU_GRP = [['Spaces', 0, 6], ['Combined', 6, 9], ['Modulation', 9, 12], ['Dynamics', 12, 14], ['Saturation', 14, 17]];
-const ADD_ORDER = ['gate', 'acou', 'acou2', 'comp', 'filt', 'drv', 'drv2', 'amp2', 'ir', 'ir2', 'eq', 'mod', 'mod2', 'vol', 'dly', 'dly2', 'stu', 'stu2', 'rev'];
+const ADD_ORDER = ['gate', 'acou', 'acou2', 'comp', 'comp2', 'filt', 'drv', 'drv2', 'amp2', 'ir', 'ir2', 'eq', 'mod', 'mod2', 'vol', 'dly', 'dly2', 'stu', 'stu2', 'rev'];
 let ORD = [], PAIRS = [], LV = -1;
 /* ordine di partenza: solo i blocchi che il firmware ha (Acoustic dalla v48f) */
-const DEF_ALL = ['gate', 'acou', 'acou2', 'comp', 'filt', 'drv', 'drv2', 'amp', 'ir', 'ir2', 'mod', 'mod2', 'vol', 'dly', 'dly2', 'stu', 'stu2', 'rev', 'eq'];
+const DEF_ALL = ['gate', 'acou', 'acou2', 'comp', 'comp2', 'filt', 'drv', 'drv2', 'amp', 'ir', 'ir2', 'mod', 'mod2', 'vol', 'dly', 'dly2', 'stu', 'stu2', 'rev', 'eq'];
 const defOrd = () => DEF_ALL.filter(b => b === 'amp' || hasBlk(b));
 const noAmp2 = o => o.filter(b => b !== 'amp2');
 const pairOf = b => PAIRS.find(x => x[0] === b || x[1] === b);
@@ -957,7 +982,22 @@ $('#qsave').onclick = () => openPresets('save');
 $('#vol').oninput = ev => { const p = PK['out.vol']; if (!p) return; dragging = 'out.vol'; p.v = +ev.target.value; rangeFill(ev.target); $('#volv').textContent = fmt(p, p.v); send('out.vol', p.v); };
 $('#vol').onchange = () => setTimeout(() => { if (dragging === 'out.vol') dragging = null; }, 350);
 $('#bmute').onclick = async () => { try { await fetch('/api/mute'); } catch(e) {} };
-function nextSlot(dir){ for (let k = 1; k <= 16; k++){ const i = ((psCur < 0 ? (dir > 0 ? -1 : 0) : psCur) + dir * k + 32) % 16; if (PS[i]) return i; } return -1; }
+const PSN = () => PS.length || 16;
+const PB = 32;                 /* preset mostrati a banchi da 32 */
+let psBank = -1, psFree = -1;
+function nextSlot(dir){ const N = PSN(); for (let k = 1; k <= N; k++){ const i = ((psCur < 0 ? (dir > 0 ? -1 : 0) : psCur) + dir * k + 2 * N) % N; if (PS[i]) return i; } return -1; }
+function bankOf(i){ return Math.floor(Math.max(0, i) / PB); }
+/* scelta del banco (solo con piu' di 32 posti): quanti preset ci sono in ognuno */
+function bankHTML(){
+  const N = PSN(); if (N <= PB) return '';
+  if (psBank < 0) psBank = bankOf(psCur);
+  let h = '<div class="seg pbank">';
+  for (let b = 0; b * PB < N; b++){ const a = b * PB, z = Math.min(N, a + PB), u = PS.slice(a, z).filter(Boolean).length;
+    h += '<button class="' + (b === psBank ? 'on' : '') + '" data-bank="' + b + '">' + (a + 1) + '–' + z + (u ? ' · ' + u : '') + '</button>'; }
+  return h + '</div>';
+}
+function bankRange(){ const N = PSN(); if (N <= PB) return [0, N]; if (psBank < 0) psBank = bankOf(psCur); return [psBank * PB, Math.min(N, psBank * PB + PB)]; }
+function freeNote(){ return psFree >= 0 ? '<span class="note">' + PS.filter(Boolean).length + ' of ' + PSN() + ' slots used · about ' + psFree + ' KB of preset memory free</span>' : ''; }
 async function loadPreset(i){ if (i < 0) return toast('No presets stored'); try { const d = await getj('/api/pload?s=' + i); if (d.err) toast(d.err); else { psCur = i; setTimeout(reload, 400); } } catch(e) {} }
 $('#pprev').onclick = () => loadPreset(nextSlot(-1));
 $('#pnext').onclick = () => loadPreset(nextSlot(1));
@@ -1243,7 +1283,7 @@ async function dropOn(b, t, fromSpare){
 }
 
 /* ===================== aggiunta di un blocco ===================== */
-let addCtx = null;
+let addCtx = null, abTap = { b: '', t: 0 };
 function openAdd(after, lane, before, pick, spare){
   const sp = ADD_ORDER.filter(b => hasBlk(b) && !inChain(b));
   if (!sp.length) return toast('Every block is already in the chain');
@@ -1251,7 +1291,14 @@ function openAdd(after, lane, before, pick, spare){
   $('#asheet').classList.remove('hid'); renderAdd();
 }
 /* da "Not in the chain" senza un punto scelto: Acoustic va subito dopo l'ingresso (prima di tutto il resto), gli altri in fondo */
-const addAt = () => addCtx.spare && (addCtx.sel === 'acou' || addCtx.sel === 'acou2') ? Object.assign({}, addCtx, { after: 'gate', before: '', lane: 0, start: 1 }) : addCtx;
+const addAt = () => {
+  if (!addCtx.spare) return addCtx;
+  if (addCtx.sel === 'acou' || addCtx.sel === 'acou2') return Object.assign({}, addCtx, { after: 'gate', before: '', lane: 0, start: 1 });
+  /* il secondo di una coppia va subito dopo il primo, se c'e' (Compressor 2 dopo Compressor) */
+  const q = pairOf(addCtx.sel);
+  if (q && q[1] === addCtx.sel && q[0] !== 'amp' && inChain(q[0])) return Object.assign({}, addCtx, { after: q[0], before: '' });
+  return addCtx;
+};
 function addWhere(){
   const a = addAt();
   if (a.start) return 'Right after the guitar input' + (dual() ? ' · into both paths' : ' · mono');
@@ -1265,10 +1312,16 @@ function renderAdd(){
   const ok = b => !(a.lane && b === 'amp2');
   $('#ain').innerHTML = '<div class="grab"></div><div class="shd"><div class="tx"><b>Add a block</b><span class="small mut">' + esc(addWhere()) + '</span></div><button class="close" data-x aria-label="Close">' + svg('close') + '</button></div>' +
     '<div class="addg">' + sp.filter(ok).map(b => '<button class="ab' + (b === a.sel ? ' on' : '') + '" style="--c:' + cvar(b) + '" data-b="' + b + '" aria-pressed="' + (b === a.sel) + '"><span class="t">' + svg(BLK[b].i) + '</span><b>' + esc(BLK[b].name) + '</b><span>' + esc(BLK[b].d) + '</span></button>').join('') + '</div>' +
-    '<div class="row small mut">' + svg('info') + '<span class="sp">Processor now ' + (S ? S.dsp : '–') + '%. If a block does not fit, the pedal says so and leaves it off.</span></div>' +
+    '<div class="row small mut">' + svg('info') + '<span class="sp">Double-tap a block to add it right away. Processor now ' + (S ? S.dsp : '–') + '%. If a block does not fit, the pedal says so and leaves it off.</span></div>' +
     '<button class="cta" id="adogo" style="--c:' + cvar(a.sel) + '">Add ' + esc(BLK[a.sel].name) + '</button>';
   $('#ain').querySelector('[data-x]').onclick = closeAdd;
-  $('#ain').querySelectorAll('.ab').forEach(e => e.onclick = () => { addCtx.sel = e.dataset.b; renderAdd(); });
+  /* un tocco sceglie, due tocchi ravvicinati sullo stesso blocco lo aggiungono subito */
+  $('#ain').querySelectorAll('.ab').forEach(e => e.onclick = () => {
+    const b = e.dataset.b, t = Date.now();
+    addCtx.sel = b;
+    if (abTap.b === b && t - abTap.t < 450) { abTap.b = ''; doAdd(); return; }
+    abTap = { b, t }; renderAdd();
+  });
   $('#adogo').onclick = doAdd;
 }
 function closeAdd(){ $('#asheet').classList.add('hid'); }
@@ -1342,7 +1395,7 @@ function renderEditor(){
     const kn = ps.filter(p => (p.t === 'knob' || ((b === 'amp' || b === 'amp2') && p.t === 'amp' && !/\.(on|cap)$/.test(p.k))) && !p.n && !/\.slot$/.test(p.k));
     if (kn.length) h += '<div class="knobs">' + kn.map(knobHTML).join('') + '</div>';
     ps.filter(p => p.n && p.t !== 'model' && p.t !== 'route' && p.t !== 'lane' && p.t !== 'on').forEach(p => {
-      h += '<div class="segw"><span>' + esc(p.t === 'pos' ? 'Position' : p.k === 'acou.pickup' ? 'The pickup you are playing' : p.l) + '</span><div class="seg">' + p.n.map((n, i) => '<button class="' + (Math.round(p.v) === i ? 'on' : '') + '" data-k="' + p.k + '" data-v="' + i + '">' + esc(n) + '</button>').join('') + '</div></div>';
+      h += '<div class="segw"><span>' + esc(segLabel(p)) + '</span><div class="seg' + (p.n.length > 5 ? ' wrap' : '') + '">' + p.n.map((n, i) => '<button class="' + (Math.round(p.v) === i ? 'on' : '') + '" data-k="' + p.k + '" data-v="' + i + '">' + esc(n) + '</button>').join('') + '</div></div>';
     });
     if (b === 'amp' && !isOn('amp2')) h += '<div class="segw"><span>Model</span><div class="seg"><button class="' + (engCur !== 2 ? 'on' : '') + '" data-eng="1">Full</button><button class="' + (engCur === 2 ? 'on' : '') + '" data-eng="2">Lite</button></div><span class="note">In use now: ' + (capInfo.lite ? 'Lite' : 'Full') + '. Lite leaves more DSP for effects. Switching restarts the pedal.</span></div>';
     if (b === 'amp2' || (b === 'amp' && isOn('amp2'))) h += '<div class="warnbox">' + svg('info') + '<span>With Amp 2 on, both amps run the lighter A2-Lite model and Wi-Fi is not available (Bluetooth works). Switching Amp 2 on or off reloads the amps: half a second of silence.</span></div>';
@@ -1483,7 +1536,7 @@ function renderFs(){
   let h = '<div class="grab"></div><div class="shd"><div class="tx"><b>Footswitches</b><span class="small mut">' + esc(MD && MD.ped === 3 && MD.pname ? MD.pname : 'Bluetooth footswitch') + ' · ' + esc(pst) + '</span></div><button class="close" data-x aria-label="Close">' + svg('close') + '</button></div>' +
     '<div class="pedal">' + G4.map(f => { const c = f.snap !== null ? 'var(--st)' : f.blks.length ? cvar(f.blks[0]) : '#3A404C';
       return '<button class="' + (f.key === fsSel ? 'on' : '') + '" style="--c:' + c + '" data-pk="' + f.key + '" aria-pressed="' + (f.key === fsSel) + '" aria-label="Switch ' + f.key + '"><span class="pl" style="background:' + c + ';box-shadow:0 0 8px ' + c + '"></span><span class="pk"><i></i></span><span class="pn">' + f.key + '</span></button>'; }).join('') + '</div>' +
-    '<span class="note">' + ((pv || nx) ? 'Preset −/+ on ' + [pv ? 'CC ' + pv.n : '', nx ? 'CC ' + nx.n : ''].filter(Boolean).join(' / ') : 'Program Change 1–16 recalls the presets') + '</span>' +
+    '<span class="note">' + ((pv || nx) ? 'Preset −/+ on ' + [pv ? 'CC ' + pv.n : '', nx ? 'CC ' + nx.n : ''].filter(Boolean).join(' / ') : 'Program Change 1–' + Math.min(128, PSN()) + ' recalls the presets') + '</span>' +
     (hasSnap() ? '<div class="segw"><span>Switch ' + fsSel + ' recalls</span><div class="seg" id="fmode"><button class="' + (isSn ? 'on' : '') + '" data-m="snap">A snapshot</button><button class="' + (isSn ? '' : 'on') + '" data-m="blocks">Blocks on/off</button></div></div>' : '') +
     (isSn ? '<div class="box"><div class="row"><b class="g sp" style="font-size:18px">Snapshot ' + 'ABCD'[si] + '</b>' + (SN.act === si ? '<span class="tag" style="background:color-mix(in srgb,var(--st) 14%,transparent);color:var(--st)">ACTIVE</span>' : '') + '</div>' +
       '<input class="sninp" id="snname" maxlength="12" placeholder="Name, e.g. Solo" value="' + esc(SN.names[si] || '') + '" aria-label="Snapshot name">' +
@@ -1518,8 +1571,10 @@ function renderPsheet(){
   $('#psupd').classList.toggle('hid', !(save && cur));
   if (save && cur) $('#psupd').textContent = 'Update "' + cur.name + '" (' + String(psCur + 1).padStart(2, '0') + ')';
   $('#psn').textContent = save ? (cur ? 'Or pick another slot to save a copy.' : 'Pick a slot and give the preset a name.') : 'Tap a preset to load it.';
-  $('#pslist').innerHTML = Array.from({ length: 16 }, (_, i) => { const p = PS[i];
+  const [a0, a1] = bankRange();
+  $('#pslist').innerHTML = bankHTML() + Array.from({ length: a1 - a0 }, (_, j) => { const i = a0 + j, p = PS[i];
     return '<button class="slt' + (p ? '' : ' empty') + (i === psCur ? ' cur' : '') + '" data-i="' + i + '"><span class="no">' + String(i + 1).padStart(2, '0') + '</span><b>' + esc(p ? p.name : (save ? 'Empty · save here' : 'Empty')) + '</b></button>'; }).join('');
+  $('#pslist').querySelectorAll('[data-bank]').forEach(e => e.onclick = () => { psBank = +e.dataset.bank; renderPsheet(); });
   $('#pslist').querySelectorAll('.slt').forEach(e => e.onclick = () => { const i = +e.dataset.i; save ? savePreset(i, false) : (PS[i] ? (loadPreset(i), closePs()) : null); });
 }
 function closePs(){ $('#psheet').classList.add('hid'); }
@@ -1534,7 +1589,7 @@ async function savePreset(i, keepName){
   try {
     const d = await getj('/api/psave?s=' + i + '&n=' + encodeURIComponent(n.slice(0, 15)));
     if (d.err) return toast(d.err);
-    PS = d.slots; psCur = d.cur; closePs(); refresh(); toast('Saved "' + n + '" in slot ' + (i + 1));
+    PS = d.slots; psCur = d.cur; if (d.free_kb != null) psFree = d.free_kb; closePs(); refresh(); toast('Saved "' + n + '" in slot ' + (i + 1));
   } catch(e) { toast('Save failed: check the connection'); }
 }
 $('#psupd').onclick = () => savePreset(psCur, true);
@@ -1542,7 +1597,10 @@ $('#psclose').onclick = closePs;
 $('#psheet').onclick = ev => { if (ev.target.id === 'psheet') closePs(); };
 function renderPresetsTab(){
   if (psSel < 0) psSel = psCur >= 0 ? psCur : 0;
-  $('#pgrid').innerHTML = Array.from({ length: 16 }, (_, i) => { const p = PS[i];
+  const [a0, a1] = bankRange();
+  $('#pbank').innerHTML = bankHTML() + freeNote();
+  $('#pbank').querySelectorAll('[data-bank]').forEach(e => e.onclick = () => { psBank = +e.dataset.bank; renderPresetsTab(); });
+  $('#pgrid').innerHTML = Array.from({ length: a1 - a0 }, (_, j) => { const i = a0 + j, p = PS[i];
     return '<button class="ps' + (p ? '' : ' empty') + (i === psSel ? ' sel' : '') + (i === psCur ? ' cur' : '') + '" data-i="' + i + '" aria-pressed="' + (i === psSel) + '"><span class="n">' + String(i + 1).padStart(2, '0') + (i === psCur ? '<i class="led on"></i>' : '') + '</span><b class="ell">' + esc(p ? p.name : 'Empty') + '</b></button>'; }).join('');
   $('#pgrid').querySelectorAll('.ps').forEach(e => { e.onclick = () => { psSel = +e.dataset.i; renderPresetsTab(); }; e.ondblclick = () => { if (PS[+e.dataset.i]) loadPreset(+e.dataset.i); }; });
   $('#pload').disabled = !PS[psSel]; $('#pdel').disabled = !PS[psSel];
@@ -1551,7 +1609,7 @@ $('#pload').onclick = () => loadPreset(psSel);
 $('#psave').onclick = () => savePreset(psSel, false);
 $('#pdel').onclick = async () => {
   const p = PS[psSel]; if (!p || !confirm('Delete preset ' + (psSel + 1) + ' "' + p.name + '"?')) return;
-  try { const d = await getj('/api/pdel?s=' + psSel); PS = d.slots; refresh(); } catch(e) {}
+  try { const d = await getj('/api/pdel?s=' + psSel); PS = d.slots; if (d.free_kb != null) psFree = d.free_kb; refresh(); } catch(e) {}
 };
 
 /* ===================== LIBRERIA ===================== */
@@ -1649,7 +1707,7 @@ function lstat(t, err){ const e = $('#lst'); e.textContent = t || ''; e.classLis
 function renderLib(){
   document.querySelectorAll('#v-lib .tabs3 button').forEach(b => b.classList.toggle('on', b.dataset.l === libTab));
   $('#lps').classList.toggle('on', libTab === 'ps'); $('#lfiles').classList.toggle('on', libTab !== 'ps');
-  if (libTab === 'ps') return renderPresetsTab();
+  if (libTab === 'ps') { renderT3k(); return renderPresetsTab(); }
   const cap = libTab === 'cap', list = cap ? CAPS : IRS, total = cap ? 20 : 10, used = list.filter(Boolean).length;
   const c = cap ? 'var(--amp)' : 'var(--ir)';
   $('#lused').textContent = used + ' of ' + total + ' slots used'; $('#lhint').textContent = cap ? 'Tap to use on Amp' : 'Tap to use on Cab IR';
@@ -1675,6 +1733,7 @@ function renderLib(){
   $('#laddt').textContent = cap ? 'Add a .nam capture' : 'Add an IR (.wav)';
   $('#laddn').textContent = cap ? 'A2 file · Full and Lite versions read from it' : 'Resampled to 48 kHz, up to 2048 samples';
   $('#lfile').accept = cap ? '.nam,application/json' : '.wav,audio/wav';
+  renderT3k();
 }
 document.querySelectorAll('#v-lib .tabs3 button').forEach(b => b.onclick = () => { libTab = b.dataset.l; lstat(''); renderLib(); });
 async function delItem(i){
@@ -1689,24 +1748,88 @@ $('#lfile').onchange = async ev => {
   try {
     if (libTab === 'cap'){
       lstat('Reading ' + f.name + '…');
-      const r = namToVxn(JSON.parse(await f.text()), f.name);
+      await importNam(await f.text(), f.name);
+    } else {
+      lstat('Reading ' + f.name + '…');
+      await importIr(await f.arrayBuffer(), f.name);
+    }
+  } catch(e){ lstat('Error: ' + e.message, 1); }
+};
+/* .nam -> pedale (dal file scelto o da TONE3000) */
+async function importNam(text, fname){
+      const r = namToVxn(JSON.parse(text), fname);
       let sl = CAPS.findIndex(c => !c);
       if (sl < 0){ if (capAct < 0 || !confirm('Storage full: replace the capture in use?')) return lstat('Storage full: delete a capture', 1); sl = capAct; }
       lstat('Sending to the pedal (' + Math.round(r.blob.byteLength / 1024) + ' KB, ' + [r.full ? 'Full' : '', r.lite ? 'Lite' : ''].filter(Boolean).join(' + ') + ')…');
       const res = await (await fetch('/api/cap?s=' + sl, { method: 'POST', body: r.blob })).json();
       if (!res.ok) throw new Error(res.err || 'error');
       await loadCaps(); selectCap(sl);
-    } else {
-      lstat('Reading ' + f.name + '…');
-      const w = parseWav(await f.arrayBuffer()), x = resample48(w.x, w.sr, 2048), blob = irToVxi(x, f.name);
+}
+async function importIr(ab, fname){
+      const w = parseWav(ab), x = resample48(w.x, w.sr, 2048), blob = irToVxi(x, fname);
       const sl = IRS.findIndex(c => !c);
       if (sl < 0) return lstat('IR storage full: delete an IR', 1);
       lstat('Sending (' + x.length + ' samples' + (w.sr !== 48000 ? ', resampled from ' + w.sr + ' Hz' : '') + ')…');
       const res = await (await fetch('/api/ir?s=' + sl, { method: 'POST', body: blob })).json();
       if (!res.ok) throw new Error(res.err || 'error');
       setv('ir.slot', sl); await loadIrs(); lstat('IR stored in slot ' + (sl + 1));
-    }
-  } catch(e){ lstat('Error: ' + e.message, 1); }
+}
+
+/* ===================== TONE3000 (solo nell'app) =====================
+   La scelta avviene sul sito (browser), poi qui: modelli del tone, download, invio al pedale come un file. */
+let T3 = null;                       /* {tone, models, fmt} dopo una scelta */
+const t3key = () => { try { return localStorage.getItem('t3k.cid') || ''; } catch(e) { return ''; } };
+function t3kHTML(){
+  const cap = libTab === 'cap';
+  let h = '<div class="hd"><span class="lg">TONE3000<i>' + (cap ? 'NAM captures' : 'impulse responses') + '</i></span></div>';
+  if (!t3key()) return h + '<span class="small mut">Browse and download ' + (cap ? 'A2 captures' : 'IRs') + ' from the TONE3000 library straight to the pedal. First add your TONE3000 app key in Setup › TONE3000.</span><button data-t3set>Set up TONE3000</button>';
+  if (T3 && T3.fmt === (cap ? 'nam' : 'ir')){
+    const t = T3.tone || {}, u = t.user || {}, img = (t.images && t.images[0]) || '';
+    const ms = ((T3.models && T3.models.data) || []).filter(m => !cap || m.architecture_version === '2');
+    h += '<div class="tone">' + (img ? '<img alt="" src="' + esc(img) + '">' : '<img alt="">') + '<div class="tx"><b class="ell">' + esc(t.title || 'Tone') + '</b><span class="small mut ell">' +
+      esc([t.gear, u.username ? 'by ' + u.username : ''].filter(Boolean).join(' · ')) + '</span></div></div>';
+    h += ms.length ? '<div class="mods">' + ms.map((m, i) => '<button data-t3m="' + i + '"><b class="ell">' + esc(m.name || ('Model ' + (i + 1))) + '</b><span>' + esc(cap ? (m.size || '') : 'IR') + '</span></button>').join('') + '</div>'
+                   : '<span class="small mut">' + (cap ? 'This tone has no A2 models: the pedal plays A2 captures only.' : 'No IRs in this tone.') + '</span>';
+    h += '<span class="small mut">Tap a model to send it to the pedal.</span>';
+  }
+  return h + '<button data-t3go>' + (T3 ? 'Pick another tone' : 'Browse TONE3000') + '</button>';
+}
+function setupT3k(){
+  const c = $('#st3k'); if (!c) return;
+  c.classList.toggle('hid', !APP);
+  if (!APP) return;
+  const k = $('#t3kid'); if (document.activeElement !== k) k.value = t3key();
+  $('#t3ksave').onclick = () => { try { localStorage.setItem('t3k.cid', k.value.trim()); } catch(e) {} toast(k.value.trim() ? 'TONE3000 key saved' : 'TONE3000 key removed'); renderT3k(); };
+  $('#t3kout').onclick = () => { VXBridge.t3kLogout(); T3 = null; toast('Signed out of TONE3000'); renderT3k(); };
+}
+function renderT3k(){
+  const e = $('#t3k'); if (!e) return;
+  e.classList.toggle('hid', !APP || libTab === 'ps');
+  if (!APP || libTab === 'ps') return;
+  e.innerHTML = t3kHTML();
+  const go = e.querySelector('[data-t3go]'); if (go) go.onclick = () => { lstat('Opening TONE3000 in the browser…'); VXBridge.t3kSelect(t3key(), libTab === 'cap' ? 'nam' : 'ir'); };
+  const st = e.querySelector('[data-t3set]'); if (st) st.onclick = () => { show('setup'); setTimeout(() => { const k = $('#t3kid'); if (k) { k.scrollIntoView({ block: 'center' }); k.focus(); } }, 300); };
+  e.querySelectorAll('[data-t3m]').forEach(b => b.onclick = () => {
+    const ms = ((T3.models && T3.models.data) || []).filter(m => libTab !== 'cap' || m.architecture_version === '2'), m = ms[+b.dataset.t3m];
+    if (!m || !m.model_url) return;
+    const base = (T3.tone && T3.tone.title ? T3.tone.title + ' ' : '') + (m.name || '');
+    lstat('Downloading ' + (m.name || 'the model') + ' from TONE3000…');
+    VXBridge.t3kDownload(m.model_url, base.trim().slice(0, 60) + (libTab === 'cap' ? '.nam' : '.wav'));
+  });
+}
+window.t3k = async (ev, o) => {
+  if (ev === 'error') return lstat(o.msg, 1);
+  if (ev === 'canceled') return lstat('');
+  if (ev === 'busy') return lstat(o.msg);
+  if (ev === 'login') return lstat('Signed in to TONE3000');
+  if (ev === 'models'){ T3 = o; libTab = o.fmt === 'ir' ? 'ir' : 'cap'; show('lib'); renderLib(); return lstat(''); }
+  if (ev === 'file'){
+    try {
+      const bin = atob(o.b64), u = new Uint8Array(bin.length); for (let i = 0; i < bin.length; i++) u[i] = bin.charCodeAt(i);
+      if (T3 && T3.fmt === 'ir') await importIr(u.buffer, o.name);
+      else await importNam(new TextDecoder().decode(u), o.name);
+    } catch(e){ lstat('Error: ' + e.message, 1); }
+  }
 };
 async function loadCaps(){
   try { const d = await getj('/api/caps'); CAPS = d.slots || []; capAct = d.active; capInfo = d;
@@ -1718,6 +1841,16 @@ async function loadIrs(){ try { const d = await getj('/api/irs'); IRS = d.slots 
 /* ===================== SETUP ===================== */
 const WL = [[2, 'Bluetooth', 'App and footswitch', 'bt', 'var(--rev)'], [1, 'Wi-Fi', 'Web page, big uploads', 'wifi', 'var(--ok)'], [0, 'Off', 'Quietest, most DSP', 'radiooff', 'var(--eq)']];
 const WL_NOTE = ['Radio off: lowest noise and DSP load. To get the app back, choose Bluetooth on the pedal menu.', 'Access point VoidX-FX: open 192.168.4.1 in a browser. The app\'s Bluetooth link drops.', 'App and BLE-MIDI footswitch over Bluetooth.'];
+function segLabel(p){
+  if (p.t === 'pos') return 'Position';
+  const k = p.k.replace(/^acou2?\./, '');
+  if (k !== p.k){
+    if (k === 'pickup') return 'Your guitar: pickup selector';
+    if (k === 'source') return 'Your guitar: pickup type';
+    if (k === 'pos') return 'Simulated pickup position';
+  }
+  return p.l;
+}
 const IN_OPT = [[3, 'Input 2 + reference', 'Guitar in 2, input 1 empty: cancels hum and radio clicks', 'BEST'], [4, 'Input 1 + reference', 'Guitar in 1, input 2 empty: cancels hum', ''], [0, 'Input 1', 'Simplest, more hum', ''], [1, 'Input 2', 'Simplest, more hum', ''], [2, 'Inputs 1 + 2', 'Average of both (−6 dB): two sources together', '']];
 function segFor(id, k, names){
   const p = PK[k], E = $(id); if (!p) { put(E, ''); return; }
@@ -1894,6 +2027,7 @@ function show(v){
   window.scrollTo(0, 0);
 }
 document.querySelectorAll('nav.tabs button').forEach(b => b.onclick = () => show(b.dataset.v));
+setupT3k();
 function subtitle(){
   const ps = PS[psCur];
   if (view === 'lib') return PS.filter(Boolean).length + ' presets · ' + CAPS.filter(Boolean).length + ' captures · ' + IRS.filter(Boolean).length + ' IRs';
@@ -1947,7 +2081,7 @@ async function init(){
     try { await reload(); if (P.length) break; } catch(e) {}
     await new Promise(r => setTimeout(r, 1000));
   }
-  try { const d = await getj('/api/presets'); PS = d.slots; psCur = d.cur; } catch(e) {}
+  try { const d = await getj('/api/presets'); PS = d.slots; psCur = d.cur; psFree = d.free_kb != null ? d.free_kb : -1; } catch(e) {}
   await loadCaps(); await loadIrs(); await loadSnaps(); await midiApi('/api/midi');
   refresh();
   poll();
