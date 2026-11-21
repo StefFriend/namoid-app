@@ -10,8 +10,8 @@ android {
         applicationId = "it.amico.voidxfx"
         minSdk = 26
         targetSdk = 34
-        versionCode = 17
-        versionName = "3.12"
+        versionCode = 18
+        versionName = "3.13"
     }
     buildTypes {
         release { isMinifyEnabled = false }

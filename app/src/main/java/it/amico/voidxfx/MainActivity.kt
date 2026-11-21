@@ -36,7 +36,7 @@ import java.util.ArrayDeque
 import java.util.UUID
 
 /**
- * VoidX FX: la stessa pagina della scheda (assets/index.html) in una WebView; le richieste /api/... passano
+ * Namoid: la stessa pagina della scheda (assets/index.html) in una WebView; le richieste /api/... passano
  * dal Bluetooth LE invece che dal Wi-Fi.
  *
  * Protocollo (vedi firmware ble.c): servizio 9f1c0001-..., RX 9f1c0002 (scrittura), TX 9f1c0003 (notifiche).
@@ -209,8 +209,8 @@ class MainActivity : Activity() {
                 val rec = result.scanRecord
                 val name = rec?.deviceName ?: try { result.device.name } catch (e: SecurityException) { null }
                 val hasSvc = rec?.serviceUuids?.any { it.uuid == SVC } == true
-                if (seen.add(result.device.address)) status(ST_BUSY, "searching for VoidX-FX… (" + seen.size + " Bluetooth devices seen)")
-                if (!hasSvc && name != "VoidX-FX") return@post
+                if (seen.add(result.device.address)) status(ST_BUSY, "searching for Namoid… (" + seen.size + " Bluetooth devices seen)")
+                if (!hasSvc && name != "Namoid" && name != "VoidX-FX") return@post   /* VoidX-FX: firmware prima del nome Namoid */
                 stopScan()
                 connect(result.device)
             }
@@ -224,7 +224,7 @@ class MainActivity : Activity() {
         val sc = adapter?.bluetoothLeScanner ?: run { status(ST_OFF, "Bluetooth not available"); return }
         scanning = true
         seen.clear()
-        status(ST_BUSY, "searching for VoidX-FX…")
+        status(ST_BUSY, "searching for Namoid…")
         /* nessun filtro hardware (su alcuni telefoni con gli UUID a 128 bit non scatta): si controlla qui */
         val s = ScanSettings.Builder().setScanMode(ScanSettings.SCAN_MODE_LOW_LATENCY).build()
         try { sc.startScan(null, s, scanCb) } catch (e: SecurityException) { scanning = false; status(ST_OFF, "Bluetooth permissions denied"); return }
@@ -232,7 +232,7 @@ class MainActivity : Activity() {
             if (scanning) {
                 stopScan()
                 status(ST_OFF, if (seen.isEmpty()) "no Bluetooth devices seen: turn on the phone's Location and retry"
-                               else "VoidX-FX not found among " + seen.size + " devices (on the pedal: Wireless = Bluetooth?)")
+                               else "Namoid not found among " + seen.size + " devices (on the pedal: Wireless = Bluetooth?)")
             }
         }, 15000)
     }
@@ -293,7 +293,7 @@ class MainActivity : Activity() {
                 val s = g.getService(SVC)
                 val r = s?.getCharacteristic(RX)
                 val t = s?.getCharacteristic(TX)
-                if (r == null || t == null) { status(ST_OFF, "VoidX service missing"); closeGatt(); return@post }
+                if (r == null || t == null) { status(ST_OFF, "Namoid service missing"); closeGatt(); return@post }
                 rx = r
                 g.setCharacteristicNotification(t, true)
                 val d = t.getDescriptor(CCCD)
@@ -303,7 +303,7 @@ class MainActivity : Activity() {
         }
         override fun onDescriptorWrite(g: BluetoothGatt, d: BluetoothGattDescriptor, st: Int) {
             h.post {
-                if (st == BluetoothGatt.GATT_SUCCESS) { status(ST_READY, "Bluetooth: " + (g.device.name ?: "VoidX-FX")); pump() }
+                if (st == BluetoothGatt.GATT_SUCCESS) { status(ST_READY, "Bluetooth: " + (g.device.name ?: "Namoid")); pump() }
                 else status(ST_OFF, "notifications not enabled ($st)")
             }
         }

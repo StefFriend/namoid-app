@@ -1,1 +1,1 @@
-# VoidX FX (Android) - app di test per implementazione custom
+# Namoid (Android) - app per il pedale Namoid

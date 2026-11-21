@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- forma d'onda stilizzata -->
+<!-- Namoid: una "N" tracciata come un segnale, in ambra -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="108dp" android:height="108dp" android:viewportWidth="108" android:viewportHeight="108">
-    <path android:strokeColor="#3FB6FF" android:strokeWidth="5" android:strokeLineCap="round" android:strokeLineJoin="round"
-        android:pathData="M30,54 L40,54 L46,38 L54,72 L62,30 L68,62 L72,54 L78,54" />
+    <path android:strokeWidth="7.5" android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:pathData="M37,71 L37,37 L71,71 L71,37">
+        <aapt:attr name="android:strokeColor">
+            <gradient android:type="linear" android:startX="37" android:startY="37" android:endX="71" android:endY="71"
+                android:startColor="#FFC46B" android:endColor="#FF8A2B" />
+        </aapt:attr>
+    </path>
 </vector>

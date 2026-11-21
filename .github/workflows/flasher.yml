@@ -1,4 +1,4 @@
-name: Build VoidX Flasher (Windows)
+name: Build Namoid Flasher (Windows)
 on:
   push:
     paths:
@@ -22,19 +22,19 @@ jobs:
         run: python -c "import importlib.util as u; s=u.spec_from_file_location('vf','voidx_flasher.pyw'); m=u.module_from_spec(s); s.loader.exec_module(m); import esptool; print('ok', esptool.__version__)"
       - name: Compila un unico .exe
         working-directory: tools/flasher
-        run: pyinstaller --noconfirm --onefile --windowed --name VoidX-Flasher --collect-all esptool --hidden-import serial.tools.list_ports voidx_flasher.pyw
+        run: pyinstaller --noconfirm --onefile --windowed --name Namoid-Flasher --collect-all esptool --hidden-import serial.tools.list_ports voidx_flasher.pyw
       - name: Prova dell'exe (tutto incluso, senza pedale)
         working-directory: tools/flasher
         shell: pwsh
         run: |
-          $p = Start-Process -FilePath dist\VoidX-Flasher.exe -ArgumentList '--selftest' -Wait -PassThru
+          $p = Start-Process -FilePath dist\Namoid-Flasher.exe -ArgumentList '--selftest' -Wait -PassThru
           Get-Content dist\selftest.txt
           if ($p.ExitCode -ne 0) { exit 1 }
           Remove-Item dist\selftest.txt
       - uses: actions/upload-artifact@v4
         with:
-          name: VoidX-Flasher-exe
-          path: tools/flasher/dist/VoidX-Flasher.exe
+          name: Namoid-Flasher-exe
+          path: tools/flasher/dist/Namoid-Flasher.exe
       - name: Pubblica come release "flasher"
         if: github.ref == 'refs/heads/main'
         env:
@@ -42,5 +42,5 @@ jobs:
         shell: bash
         run: |
           gh release delete flasher -y --cleanup-tag || true
-          gh release create flasher tools/flasher/dist/VoidX-Flasher.exe --title "VoidX Flasher (Windows)" \
+          gh release create flasher tools/flasher/dist/Namoid-Flasher.exe --title "Namoid Flasher (Windows)" \
             --notes "Build automatica del commit ${GITHUB_SHA::7}. Un solo file: niente da installare."

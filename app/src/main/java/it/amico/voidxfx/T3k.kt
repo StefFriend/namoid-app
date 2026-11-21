@@ -18,18 +18,18 @@ import java.util.concurrent.Executors
  * TONE3000: scelta di una cattura (o di un IR) dal catalogo e download nell'app, che poi la manda al pedale.
  *
  * Flusso (API v1, OAuth 2.0 con PKCE): la pagina di TONE3000 si apre nel browser con prompt=select_tone; l'utente
- * accede, sceglie un tone e TONE3000 torna all'app con voidxfx://t3k?code=...&state=...&tone_id=...
+ * accede, sceglie un tone e TONE3000 torna all'app con namoid://t3k?code=...&state=...&tone_id=...
  * Il codice si scambia con un token (salvato, con il refresh), poi si leggono i modelli del tone e, su richiesta,
  * si scarica il file del modello scelto (model_url con il token).
  *
  * Serve la chiave pubblica dell'app (client_id), creata dall'utente nelle impostazioni del suo account TONE3000
- * con voidxfx://t3k tra gli indirizzi di ritorno. Nessuna chiave segreta nell'app.
+ * con namoid://t3k tra gli indirizzi di ritorno. Nessuna chiave segreta nell'app.
  * Tutte le risposte tornano alla pagina come window.t3k(evento, json).
  */
 class T3k(private val act: Activity, private val js: (String) -> Unit) {
     companion object {
         const val BASE = "https://www.tone3000.com/api/v1"
-        const val REDIRECT = "voidxfx://t3k"
+        const val REDIRECT = "namoid://t3k"
     }
     private val io = Executors.newSingleThreadExecutor()
     private val prefs = act.getSharedPreferences("t3k", Context.MODE_PRIVATE)
@@ -63,7 +63,7 @@ class T3k(private val act: Activity, private val js: (String) -> Unit) {
 
     /** ritorno da TONE3000 (deep link). true se era per noi */
     fun handle(uri: Uri?): Boolean {
-        if (uri == null || uri.scheme != "voidxfx" || uri.host != "t3k") return false
+        if (uri == null || (uri.scheme != "namoid" && uri.scheme != "voidxfx") || uri.host != "t3k") return false
         val error = uri.getQueryParameter("error")
         val code = uri.getQueryParameter("code")
         val tone = uri.getQueryParameter("tone_id")

@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
-<title>VX FX</title>
+<title>Namoid</title>
 <style>
 @font-face{font-family:Inter;font-weight:400;src:url(fonts/inter-latin-400-normal.woff2) format('woff2')}
 @font-face{font-family:Inter;font-weight:500;src:url(fonts/inter-latin-500-normal.woff2) format('woff2')}
@@ -476,12 +476,68 @@ body.dragging .dhint{display:flex}
 .lis button.on{background:var(--c);border-color:var(--c);color:var(--onacc)}
 #toast{position:fixed;left:50%;bottom:calc(100px + env(safe-area-inset-bottom));transform:translateX(-50%) translateY(20px);opacity:0;pointer-events:none;z-index:40;background:var(--inv);color:var(--invfg);padding:10px 16px;border-radius:14px;font-size:14px;font-weight:500;max-width:88vw;text-align:center;transition:.2s}
 #toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ===================== look "studio hardware" (3.13) =====================
+   Pannello del preset come un display retroilluminato, superfici con un filo di luce in alto, numeri in carattere
+   mono da strumento, accento ambra (lampada / VU), barra delle schede sospesa. Il tema chiaro resta pulito: il display
+   rimane scuro, come su un pedale vero. */
+@font-face{font-family:'JetBrains Mono';font-weight:500;src:url(fonts/jetbrains-mono-latin-500-normal.woff2) format('woff2')}
+@font-face{font-family:'JetBrains Mono';font-weight:700;src:url(fonts/jetbrains-mono-latin-700-normal.woff2) format('woff2')}
+:root{--acc:#FF9A3C;--acc2:#FFC46B;--accfg:#1A0E02;--bg:#07080B;--s1:#101318;--s4:#12161C;--sheen:rgba(255,255,255,.045);--edge:rgba(255,255,255,.06);--shadow:0 10px 30px rgba(0,0,0,.35);--lcd:#06080B;--lcdfg:#F4F6FA;--mono2:'JetBrains Mono',ui-monospace,monospace}
+:root[data-theme=light]{--kc1:#FFFFFF;--kc2:#E7EAEF;--kc3:#C4CAD3;--acc:#E8711C;--acc2:#F59A3B;--accfg:#FFFFFF;--sheen:rgba(255,255,255,.9);--edge:rgba(255,255,255,.95);--shadow:0 8px 24px rgba(20,24,32,.08)}
+html,body{background:radial-gradient(120% 55% at 50% -12%,color-mix(in srgb,var(--acc) 11%,transparent),transparent 62%) fixed,var(--bg)}
+header.top{background:color-mix(in srgb,var(--bg) 82%,transparent);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px)}
+.logo{font-size:17px;font-weight:700;background:linear-gradient(140deg,var(--acc2),var(--acc));color:var(--accfg);box-shadow:0 0 18px color-mix(in srgb,var(--acc) calc(45% * var(--glow)),transparent),inset 0 1px 0 rgba(255,255,255,.35);letter-spacing:.5px}
+.pill b,.slider .v,.meters .num,.knob .v,.load .v,#rdsp{font-family:var(--mono2);font-weight:700;letter-spacing:-.2px}
+.card,.fsw,.quick button,.round,.pill,.ib,.hzbar,.bc.on{background-image:linear-gradient(180deg,var(--sheen),transparent 55%);box-shadow:inset 0 1px 0 var(--edge),var(--shadow)}
+.card{border-radius:24px}
+/* display del preset */
+.phead{position:relative;padding:14px 10px;border-radius:26px;background:radial-gradient(90% 120% at 50% 0%,color-mix(in srgb,var(--acc) 10%,transparent),transparent 70%),linear-gradient(180deg,#11151B,var(--lcd));border:1px solid #1E232B;box-shadow:inset 0 1px 0 rgba(255,255,255,.06),inset 0 -20px 40px rgba(0,0,0,.35),0 14px 40px rgba(0,0,0,.35);overflow:hidden}
+.phead::after{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(180deg,rgba(255,255,255,.025) 0 1px,transparent 1px 3px);border-radius:inherit}
+.phead .pname{color:var(--lcdfg)}
+.phead .pname b{font-size:31px;letter-spacing:-.6px;text-shadow:0 0 22px rgba(255,255,255,.18)}
+.phead #pslot{font-family:var(--mono2);font-weight:700;font-size:12px;letter-spacing:3px;color:var(--acc2);text-shadow:0 0 10px color-mix(in srgb,var(--acc) 70%,transparent)}
+.phead .round{background:linear-gradient(180deg,#232831,#14181E);border:1px solid #2B313B;color:#E7EAF0;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 4px 12px rgba(0,0,0,.45)}
+.phead .psnap{color:#7FD8FF}
+/* pulsanti principali */
+button.prim{background:linear-gradient(180deg,var(--acc2),var(--acc));border-color:transparent;color:var(--accfg);box-shadow:0 6px 20px color-mix(in srgb,var(--acc) calc(35% * var(--glow)),transparent),inset 0 1px 0 rgba(255,255,255,.35)}
+.tabs3 button.on,.seg button.on{background:linear-gradient(180deg,color-mix(in srgb,var(--s2) 70%,#fff 6%),var(--s2));box-shadow:inset 0 1px 0 var(--edge),0 2px 6px rgba(0,0,0,.25)}
+/* pedali a pedale: la spia come un LED vero */
+.fsw{border-radius:22px}
+.fsw .k{border-radius:50%;font-family:var(--mono2)}
+.fsw.on .k{box-shadow:0 0 14px color-mix(in srgb,var(--c) 70%,transparent)}
+.fsw.on .lamp{width:11px;height:11px;border-radius:6px;background:radial-gradient(circle at 35% 35%,#fff,var(--c) 45%);box-shadow:0 0 6px var(--c),0 0 18px var(--c)}
+.fsw.on{background-image:radial-gradient(120% 90% at 100% 0%,color-mix(in srgb,var(--c) 12%,transparent),transparent 60%),linear-gradient(180deg,var(--sheen),transparent 55%)}
+/* manopole: cappello di metallo e arco luminoso */
+.knob .arc{filter:drop-shadow(0 0 3px color-mix(in srgb,var(--c) calc(70% * var(--glow)),transparent))}
+.knob .cap{fill:url(#kcap);stroke:var(--line);stroke-width:1}
+.knob .ptr{stroke:var(--c)}
+input[type=range]::-webkit-slider-thumb{background:radial-gradient(circle at 40% 35%,#fff,#C9CED6 60%,#9097A2);box-shadow:0 0 0 3px color-mix(in srgb,var(--acc) 35%,transparent),0 2px 8px rgba(0,0,0,.45)}
+/* barra delle schede sospesa */
+nav.tabs{left:12px;right:12px;bottom:calc(10px + env(safe-area-inset-bottom));padding:6px;border-radius:24px;border:1px solid var(--line);background:color-mix(in srgb,var(--nav) 78%,transparent);-webkit-backdrop-filter:blur(18px) saturate(1.4);backdrop-filter:blur(18px) saturate(1.4);box-shadow:0 12px 36px rgba(0,0,0,.45),inset 0 1px 0 var(--edge)}
+nav.tabs button{position:relative;border-radius:18px;min-height:54px}
+nav.tabs button.on{color:var(--acc);background:color-mix(in srgb,var(--acc) 10%,transparent)}
+nav.tabs button.on::after{content:'';position:absolute;top:5px;width:5px;height:5px;border-radius:3px;background:var(--acc);box-shadow:0 0 8px var(--acc)}
+main{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
+/* carico DSP */
+.bar{background:var(--s3);box-shadow:inset 0 1px 2px rgba(0,0,0,.35)}
+.bar i{background:linear-gradient(90deg,var(--ok),var(--acc2) 70%,var(--acc));box-shadow:0 0 10px color-mix(in srgb,var(--acc) calc(40% * var(--glow)),transparent)}
+.bar i.hot{background:linear-gradient(90deg,var(--acc),var(--bad))}
+.cap{letter-spacing:2.4px}
+.ps{background-image:linear-gradient(180deg,var(--sheen),transparent 55%);box-shadow:inset 0 1px 0 var(--edge)}
+.ps .n{font-family:var(--mono2);font-weight:700;color:var(--acc);letter-spacing:.5px}
+.ps.empty{background:transparent;background-image:none;box-shadow:none;border-style:dashed}
+.ps.empty .n{color:var(--faint)}
+.ps.cur{border-color:var(--acc);box-shadow:0 0 0 1px var(--acc),0 0 22px color-mix(in srgb,var(--acc) calc(25% * var(--glow)),transparent),inset 0 1px 0 var(--edge)}
+:root:not([data-theme=light]){--kc1:#626A77;--kc2:#2E343D;--kc3:#181B21}
+.knob svg{width:68px;height:68px}
 </style>
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs><radialGradient id="kcap" cx="38%" cy="30%" r="75%"><stop offset="0" style="stop-color:var(--kc1,#4A515D)"/><stop offset=".55" style="stop-color:var(--kc2,#262B33)"/><stop offset="1" style="stop-color:var(--kc3,#14171C)"/></radialGradient></defs></svg>
 <header class="top">
-  <div class="logo">VX</div>
-  <div class="ttl"><b id="vtitle">Play</b><span id="vsub">VoidX FX</span></div>
+  <div class="logo" aria-label="Namoid">N</div>
+  <div class="ttl"><b id="vtitle">Play</b><span id="vsub">Namoid</span></div>
   <div class="pill" id="connp"><span class="led busy" id="cled"></span><span id="ctext">…</span></div>
   <div class="pill">DSP <b id="dsp">–</b></div>
   <button class="ib" id="btun" aria-label="Tuner"><svg class="i" viewBox="0 0 24 24"><path d="M8.5 2v7.5a3.5 3.5 0 0 0 7 0V2M12 13v9"/></svg></button>
@@ -591,7 +647,7 @@ body.dragging .dhint{display:flex}
       <div class="tx"><b>TONE3000</b><span class="small mut" style="display:block">Browse the TONE3000 library of NAM captures and IRs and send them to the pedal from Library › Amps or Cabs.</span></div>
       <input id="t3kid" placeholder="TONE3000 publishable key" autocomplete="off" spellcheck="false" style="height:44px;border-radius:12px;padding:0 12px;background:var(--s3);border:1px solid var(--line);color:var(--fg);font-size:14px">
       <div class="row"><button class="sp" id="t3ksave">Save key</button><button id="t3kout">Sign out</button></div>
-      <span class="note">One-time setup on tone3000.com › Settings › API: create an app key, add <b>voidxfx://t3k</b> as a redirect URI, then paste the publishable key here. The secret key is not needed and must not go in the app.</span>
+      <span class="note">One-time setup on tone3000.com › Settings › API: create an app key, add <b>namoid://t3k</b> as a redirect URI, then paste the publishable key here. The secret key is not needed and must not go in the app.</span>
     </div>
   </section>
 </main>
@@ -855,7 +911,7 @@ function knobHTML(p){
   return '<div class="knob" data-k="' + esc(p.k) + '" style="--c:' + cvar(blkOf(p)) + '"><svg viewBox="0 0 64 64" role="img" aria-label="' + esc(p.l) + '">' +
     '<circle cx="32" cy="32" r="26" fill="none" stroke="var(--track)" stroke-width="6" stroke-linecap="round" stroke-dasharray="' + KT + ' ' + KC + '" transform="rotate(135 32 32)"/>' +
     '<circle class="arc" cx="32" cy="32" r="26" fill="none" stroke="var(--c)" stroke-width="6" stroke-linecap="round" stroke-dasharray="0 ' + KC + '" transform="rotate(135 32 32)"/>' +
-    '<circle cx="32" cy="32" r="17" fill="var(--hub)"/><line class="ptr" x1="32" y1="32" x2="32" y2="18" stroke="var(--fg)" stroke-width="2.5" stroke-linecap="round"/></svg>' +
+    '<circle class="cap" cx="32" cy="32" r="17" fill="var(--hub)"/><line class="ptr" x1="32" y1="32" x2="32" y2="18" stroke="var(--fg)" stroke-width="2.5" stroke-linecap="round"/></svg>' +
     '<span class="v"></span><span class="l"></span></div>';
 }
 function blkOf(p){ const g = G[p.g]; return g ? g.blk : 'glob'; }
@@ -2005,7 +2061,7 @@ async function loadIrs(){ try { const d = await getj('/api/irs'); IRS = d.slots 
 
 /* ===================== SETUP ===================== */
 const WL = [[2, 'Bluetooth', 'App and footswitch', 'bt', 'var(--rev)'], [1, 'Wi-Fi', 'Web page, big uploads', 'wifi', 'var(--ok)'], [0, 'Off', 'Quietest, most DSP', 'radiooff', 'var(--eq)']];
-const WL_NOTE = ['Radio off: lowest noise and DSP load. To get the app back, choose Bluetooth on the pedal menu.', 'Access point VoidX-FX: open 192.168.4.1 in a browser. The app\'s Bluetooth link drops.', 'App and BLE-MIDI footswitch over Bluetooth.'];
+const WL_NOTE = ['Radio off: lowest noise and DSP load. To get the app back, choose Bluetooth on the pedal menu.', 'Access point Namoid (password namoidfx): open 192.168.4.1 in a browser. The app\'s Bluetooth link drops.', 'App and BLE-MIDI footswitch over Bluetooth.'];
 function segLabel(p){
   if (p.t === 'pos') return 'Position';
   const k = p.k.replace(/^acou2?\./, '');

@@ -4,5 +4,5 @@ pluginManagement {
 dependencyResolutionManagement {
     repositories { google(); mavenCentral() }
 }
-rootProject.name = "VoidXFX"
+rootProject.name = "Namoid"
 include(":app")

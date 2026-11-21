@@ -1,4 +1,4 @@
-# VoidX Flasher - installs firmware on the VoidX pedal (ESP32-S3) without Claude.
+# Namoid Flasher - installs firmware on the Namoid pedal (ESP32-S3 on the VoidX DSP module) without Claude.
 #
 # Safety rules, enforced in code:
 #   - only ESP32-S3 application images are written, and only at the start of an app partition read from
@@ -8,7 +8,7 @@
 #   - the whole flash is never erased (no erase_flash) and eFuses are never touched (no espefuse);
 #   - esptool verifies what it wrote.
 #
-# Ships as a single VoidX-Flasher.exe (built on GitHub Actions with PyInstaller): nothing to install.
+# Ships as a single Namoid-Flasher.exe (built on GitHub Actions with PyInstaller): nothing to install.
 # It also runs as a script with Python 3, esptool 4.8 and pyserial.
 
 import os
@@ -27,8 +27,10 @@ PT_ADDR, PT_LEN = 0x8000, 0xC00
 
 # firmware projects and where they belong (esp_app_desc_t project_name -> partition label)
 KNOWN = {
-    "vx_amp": ("ota_0", "Pedal"),
-    "vx_launcher": ("factory", "Launcher (firmware selector)"),
+    "namoid": ("ota_0", "Pedal"),
+    "namoid_launcher": ("factory", "Launcher (firmware selector)"),
+    "vx_amp": ("ota_0", "Pedal (before the Namoid name)"),
+    "vx_launcher": ("factory", "Launcher (before the Namoid name)"),
 }
 LABELS = {"factory": "Launcher", "ota_0": "Pedal", "ota_1": "Audio interface", "ota_2": "Didactic"}
 
@@ -244,7 +246,7 @@ def gui():
 
     os.makedirs(BACKUPS, exist_ok=True)
     root = tk.Tk()
-    root.title("VoidX Flasher")
+    root.title("Namoid Flasher")
     root.geometry("720x560")
     st = {"parts": None, "file": None, "img": None, "busy": False}
 
@@ -331,7 +333,7 @@ def gui():
                 fn()
             except Exception as e:
                 log("ERROR: %s" % e)
-                root.after(0, lambda: messagebox.showerror("VoidX Flasher", str(e)))
+                root.after(0, lambda: messagebox.showerror("Namoid Flasher", str(e)))
             finally:
                 st["busy"] = False
                 root.after(0, lambda: go_btn.state(["!disabled"]))
@@ -347,7 +349,7 @@ def gui():
         try:
             img = inspect_image(data)
         except ValueError as e:
-            messagebox.showerror("VoidX Flasher", "%s\n\n%s" % (os.path.basename(p), e))
+            messagebox.showerror("Namoid Flasher", "%s\n\n%s" % (os.path.basename(p), e))
             return
         st["file"], st["img"] = p, img
         where = KNOWN.get(img["project"], (None, "unknown project: choose where it goes"))[1]
@@ -396,7 +398,7 @@ def gui():
         if want and want != part["label"]:
             ok = []
             ev = threading.Event()
-            root.after(0, lambda: (ok.append(messagebox.askyesno("VoidX Flasher",
+            root.after(0, lambda: (ok.append(messagebox.askyesno("Namoid Flasher",
                 "This is a '%s' firmware, normally installed into %s.\nInstall it into %s anyway?" % (img["project"], want, part["label"]))), ev.set()))
             ev.wait()
             if not ok[0]:
@@ -410,11 +412,11 @@ def gui():
         t0 = time.time()
         flash(pt, part, st["file"], log)
         log("Done in %.0f s: firmware written and verified, the pedal restarts." % (time.time() - t0))
-        root.after(0, lambda: messagebox.showinfo("VoidX Flasher", "Firmware installed and verified."))
+        root.after(0, lambda: messagebox.showinfo("Namoid Flasher", "Firmware installed and verified."))
     go_btn.config(command=lambda: worker(install))
 
     refresh_ports()
-    log("VoidX Flasher. Steps: choose the port, choose a firmware, check where it goes, Install.")
+    log("Namoid Flasher. Steps: choose the port, choose a firmware, check where it goes, Install.")
     log("Backups are saved in: " + BACKUPS)
     root.mainloop()
 
