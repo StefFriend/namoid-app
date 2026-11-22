@@ -101,6 +101,12 @@ nav.tabs button.on{color:var(--fg);font-weight:700}
 .quick{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
 .quick button{height:56px;border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;font-size:12px;font-weight:600;background:var(--s1)}
 .quick button svg{width:20px;height:20px}
+.card.tapr{display:flex;flex-direction:row;align-items:center;gap:14px;padding:12px 14px}
+.tapr #btap{height:56px;min-width:104px;border-radius:16px;font-size:15px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:8px;background:var(--s1);touch-action:manipulation}
+.tapr #btap.hit{background:color-mix(in srgb,var(--acc) 30%,var(--s1))}
+.tapr .bpm{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:28px;font-weight:700;line-height:1}
+.tapr .tx{display:flex;flex-direction:column;gap:4px;min-width:0}
+.tapr .tx span{font-size:12px;color:var(--mut)}
 .quick button.on{background:var(--bad);border-color:var(--bad);color:var(--onacc)}
 .slider{display:flex;align-items:center;gap:12px}
 .slider .v{font-family:'Space Grotesk';font-weight:600;font-size:14px;min-width:60px;text-align:right}
@@ -568,6 +574,7 @@ main{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
       <button id="qsave"><svg class="i" viewBox="0 0 24 24"><path d="M5 3h11l3 3v15H5zM8 3v5h7V3M8 21v-6h8v6"/></svg>Save</button>
       <button id="bmute" aria-pressed="false"><svg class="i" viewBox="0 0 24 24"><path d="M4 9h4l5-4v14l-5-4H4zM17 9l5 6M22 9l-5 6"/></svg><span id="mutet">Mute</span></button>
     </div>
+    <div class="card tapr hid" id="tapc"><button id="btap" aria-label="Tap tempo"><svg class="i" viewBox="0 0 24 24"><path d="M9 3h6l3 18H6zM12 17l4-9M8 13h8"/></svg>Tap</button><div class="tx"><b class="bpm" id="tbpm">–</b><span id="tsub">BPM · tap at least twice</span></div></div>
     <div class="slider"><svg class="i" viewBox="0 0 24 24" style="color:var(--mut)"><path d="M4 9h4l5-4v14l-5-4H4zM16.5 9a4 4 0 0 1 0 6"/></svg><input type="range" id="vol" aria-label="Volume"><span class="v" id="volv">–</span></div>
     <div class="meters" aria-label="Levels"><span>IN</span><div class="mseg" id="min"></div><span class="num" id="nin">–</span><span>OUT</span><div class="mseg" id="mout"></div><span class="num" id="nout">–</span></div>
   </section>
@@ -623,6 +630,18 @@ main{padding-bottom:calc(120px + env(safe-area-inset-bottom))}
       <div class="segw"><span>Safety margin</span><div class="seg" id="slat"></div></div>
       <div class="optr"><div class="tx"><b>Steady power draw</b><span>Keeps the load constant: less tone in the input</span></div><button class="sw" id="scl" aria-label="Steady power draw"></button></div>
       <div class="optr" id="rnotch"><div class="tx"><b>6 kHz filter</b><span>Removes a faint 6 kHz whistle from the input</span></div><button class="sw" id="snotch" aria-label="6 kHz filter"></button></div>
+    </div>
+    <div class="card hid" id="cusb">
+      <div class="sec"><div class="si"><svg class="i" viewBox="0 0 24 24"><path d="M12 3v15M12 3l-2.5 3h5zM12 14l-4-2.5V9M12 12l4-2V8M6.5 7.5h3v3h-3zM15 6.2a1.3 1.3 0 1 0 2 0 1.3 1.3 0 1 0-2 0M10 20a2 2 0 1 0 4 0 2 2 0 1 0-4 0"/></svg></div><div class="tx"><b>USB audio</b><span id="usbsub">Class compliant, micro-USB port · 48 kHz 24 bit</span></div></div>
+      <div class="optr"><div class="tx"><b>Audio interface</b><span>Off: no DSP or RAM used. Applies after a restart</span></div><button class="sw" id="susb" aria-label="USB audio interface"></button></div>
+      <div class="optr hid" id="rusbrb" style="background:color-mix(in srgb,var(--warn) 14%,transparent);border-radius:12px;padding:8px 10px"><div class="tx"><b id="usbrbt">Restart to apply</b></div><button id="busbrb">Restart now</button></div>
+      <div id="usbopt" style="display:flex;flex-direction:column;gap:10px">
+        <div class="segw"><span>Send to computer</span><div class="seg" id="susrc"></div></div>
+        <span class="note">Wet: the pedal sound, L and R. Dry: IN1 and IN2 untouched, the DI for reamping. Wet + Dry: wet on channel 1, IN1 on channel 2.</span>
+        <div class="optr"><div class="tx"><b>Reamp</b><span>Computer playback (left) feeds the chain instead of the guitar</span></div><button class="sw" id="sreamp" aria-label="Reamp"></button></div>
+        <div id="susbmix" style="display:flex;flex-direction:column;gap:10px"></div>
+        <span class="note">Pedal on outputs at 0: you hear only the computer, for amp sims on the computer or iPad. What goes to the computer stays the same.</span>
+      </div>
     </div>
     <div class="card">
       <div class="sec"><div class="si"><svg class="i" viewBox="0 0 24 24"><path d="M6 3v18M12 3v18M18 3v18M3.5 8h5M9.5 15h5M15.5 10h5"/></svg></div><div class="tx"><b>Output EQ</b><span>For every preset: match the room, the PA or headphones</span></div></div>
@@ -780,6 +799,8 @@ const IC = {
   info: 'M12 3a9 9 0 1 0 0 18 9 9 0 1 0 0-18zM12 8v5M12 16h.01',
   trash: 'M5 7h14M10 7V4h4v3M7 7l1 13h8l1-13',
   snap: 'M4 8h3l2-3h6l2 3h3v11H4zM12 10.5a3.5 3.5 0 1 0 0 7 3.5 3.5 0 1 0 0-7z',
+  tap: 'M9 3h6l3 18H6zM12 17l4-9M8 13h8',
+  usb: 'M12 3v15M12 3l-2.5 3h5zM12 14l-4-2.5V9M12 12l4-2V8M6.5 7.5h3v3h-3zM15 6.2a1.3 1.3 0 1 0 2 0 1.3 1.3 0 1 0-2 0M10 20a2 2 0 1 0 4 0 2 2 0 1 0-4 0',
   move: 'M8 4v16M8 4 5 7M8 4l3 3M16 20V4M16 20l-3-3M16 20l3-3',
   up: 'M6 15l6-6 6 6', down: 'M6 9l6 6 6-6', chev: 'M9 6l6 6-6 6'
 };
@@ -959,10 +980,11 @@ function bindRange(r, k){
 
 /* ===================== pedali: per ogni tasto A..D i blocchi "Block on/off" su CC 20..23 ===================== */
 function fsGroups(){
-  const g = [0, 1, 2, 3].map(i => ({ key: 'ABCD'[i], cc: 20 + i, blks: [], idx: [], snap: null, sidx: -1 }));
+  const g = [0, 1, 2, 3].map(i => ({ key: 'ABCD'[i], cc: 20 + i, blks: [], idx: [], snap: null, sidx: -1, tap: -1 }));
   if (MD && MD.map) MD.map.forEach((m, i) => {
     if (m && m.a === 0 && m.t === 0 && m.n >= 20 && m.n <= 23 && BLK[m.k]) { const x = g[m.n - 20]; if (!x.blks.includes(m.k)) { x.blks.push(m.k); x.idx.push(i); } }
     if (m && m.a === 8 && m.t === 0 && m.n >= 20 && m.n <= 23 && hasSnap()) { const x = g[m.n - 20]; x.snap = Math.round(m.v); x.sidx = i; }
+    if (m && m.a === 6 && m.t === 0 && m.n >= 20 && m.n <= 23) g[m.n - 20].tap = i;
   });
   return g;
 }
@@ -1005,6 +1027,14 @@ async function recallSnap(i){
 async function setFsMode(key, mode){
   if (!MD) return;
   const f = fsGroups()['ABCD'.indexOf(key)], k = 'ABCD'.indexOf(key);
+  if (mode !== 'tap' && f.tap >= 0) await midiApi('/api/mididel?i=' + f.tap);
+  if (mode === 'tap' && f.tap < 0){
+    for (const i of f.idx) await midiApi('/api/mididel?i=' + i);
+    if (f.snap !== null) await midiApi('/api/mididel?i=' + f.sidx);
+    const j = MD.map.findIndex(m => !m);
+    if (j < 0) return toast('MIDI table full: delete a mapping in Setup');
+    await midiApi('/api/midiset?i=' + j + '&t=0&n=' + f.cc + '&m=0&a=6');
+  }
   if (mode === 'snap' && f.snap === null){
     for (const i of f.idx) await midiApi('/api/mididel?i=' + i);
     const j = MD.map.findIndex(m => !m);
@@ -1068,6 +1098,11 @@ function renderPlay(){
   const G4 = fsGroups();
   $('#fscap').textContent = G4.some(f => f.snap !== null) ? 'Footswitches · snapshots' : 'Footswitches';
   const fsH = G4.map(f => {
+    if (f.tap >= 0){
+      const t = PK['tempo'];
+      return '<button class="fsw on" data-k="' + f.key + '" data-tap="1" style="--c:var(--acc)"><div class="h"><span class="k">' + f.key + '</span><i class="lamp"></i></div>' +
+        '<div class="m"><span class="t">' + svg('tap') + '</span><span class="n"><b>Tap tempo</b><span>' + (t && t.v > 0 ? (+t.v).toFixed(1) + ' BPM' : 'no tempo yet') + '</span></span></div><span class="s">TAP</span></button>';
+    }
     if (f.snap !== null){
       const i = f.snap, on = sn === i, list = (SN.on && SN.on[i]) || [];
       const ic = chainParts().all.concat(['amp2']).filter(b => b !== 'amp' && BLK[b] && inChain(b)).map(b => '<svg class="i' + (list.includes(b) ? ' on' : '') + '" viewBox="0 0 24 24" aria-hidden="true"><path d="' + IC[BLK[b].i] + '"/></svg>').join('');
@@ -1083,7 +1118,9 @@ function renderPlay(){
   }).join('');
   if (put($('#fs'), fsH)) $('#fs').querySelectorAll('.fsw').forEach(e => e.onclick = () => {
     if (e.dataset.sn !== undefined) return recallSnap(+e.dataset.sn);
+    if (e.dataset.tap) return doTap();
     const f = fsGroups()['ABCD'.indexOf(e.dataset.k)]; if (f.blks.length) toggleGroup(f.blks); else openFs(e.dataset.k); });
+  renderTap();
   const v = PK['out.vol']; if (v && dragging !== 'out.vol'){ const r = $('#vol'); r.min = v.min; r.max = v.max; r.step = v.step; r.value = v.v; rangeFill(r); $('#volv').textContent = fmt(v, v.v); }
 }
 $('#gochain').onclick = () => show('chain');
@@ -1093,6 +1130,26 @@ $('#qsave').onclick = () => openPresets('save');
 $('#vol').oninput = ev => { const p = PK['out.vol']; if (!p) return; dragging = 'out.vol'; p.v = +ev.target.value; rangeFill(ev.target); $('#volv').textContent = fmt(p, p.v); send('out.vol', p.v); };
 $('#vol').onchange = () => setTimeout(() => { if (dragging === 'out.vol') dragging = null; }, 350);
 $('#bmute').onclick = async () => { try { await fetch('/api/mute'); } catch(e) {} };
+/* tap tempo: i tocchi si misurano qui (il ritardo di Wi-Fi e Bluetooth non conta), al pedale va la media */
+let taps = [];
+function renderTap(){
+  const t = PK['tempo']; $('#tapc').classList.toggle('hid', !t); if (!t) return;
+  $('#tbpm').textContent = t.v > 0 ? (+t.v).toFixed(1) : '–';
+  const sy = ['dly', 'dly2', 'mod', 'mod2'].filter(b => isOn(b) && PK[b + '.sync'] && PK[b + '.sync'].v > 0.5).map(b => BLK[b] ? BLK[b].name : b);
+  $('#tsub').textContent = t.v > 0 ? 'BPM' + (sy.length ? ' · ' + sy.join(', ') + ' synced' : ' · delay set to the quarter note') : 'BPM · tap at least twice';
+}
+$('#btap').addEventListener('pointerdown', ev => { ev.preventDefault(); doTap(); });
+function doTap(){
+  const now = performance.now(), b = $('#btap');
+  b.classList.add('hit'); setTimeout(() => b.classList.remove('hit'), 90);
+  if (taps.length && now - taps[taps.length - 1] > 2000) taps = [];
+  taps.push(now); if (taps.length > 5) taps.shift();
+  if (taps.length < 2) return;
+  const iv = taps.slice(1).map((t, i) => t - taps[i]), ms = iv.reduce((a, x) => a + x, 0) / iv.length;
+  if (ms < 120 || ms > 2000) return;
+  $('#tbpm').textContent = (60000 / ms).toFixed(1);
+  getj('/api/tap?ms=' + ms.toFixed(1)).then(d => { if (d && d.tempo && PK['tempo']) { PK['tempo'].v = d.tempo; touched['tempo'] = Date.now(); renderTap(); } }).catch(() => {});
+}
 const PSN = () => PS.length || 16;
 const PB = 32;                 /* preset mostrati a banchi da 32 */
 let psBank = -1, psFree = -1;
@@ -1753,20 +1810,20 @@ function renderFs(){
   const pst = !MD ? '–' : !MD.pen ? 'Bluetooth footswitch off' : conn !== 2 ? 'Needs the Bluetooth connection' : PSTATE[MD.ped] || '–';
   const blks = noAmp2(ORD.length ? ORD : defOrd()).concat(['amp2']).filter(b => b !== 'amp' && hasBlk(b) && (inChain(b) || cur.blks.includes(b)));
   const nx = MD && MD.map.find(m => m && m.a === 3), pv = MD && MD.map.find(m => m && m.a === 4);
-  const isSn = cur.snap !== null, si = isSn ? cur.snap : 'ABCD'.indexOf(fsSel);
+  const isTap = cur.tap >= 0, isSn = !isTap && cur.snap !== null, si = isSn ? cur.snap : 'ABCD'.indexOf(fsSel);
   let h = '<div class="grab"></div><div class="shd"><div class="tx"><b>Footswitches</b><span class="small mut">' + esc(MD && MD.ped === 3 && MD.pname ? MD.pname : 'Bluetooth footswitch') + ' · ' + esc(pst) + '</span></div><button class="close" data-x aria-label="Close">' + svg('close') + '</button></div>' +
     '<div class="pedal">' + G4.map(f => { const c = f.snap !== null ? 'var(--st)' : f.blks.length ? cvar(f.blks[0]) : '#3A404C';
       return '<button class="' + (f.key === fsSel ? 'on' : '') + '" style="--c:' + c + '" data-pk="' + f.key + '" aria-pressed="' + (f.key === fsSel) + '" aria-label="Switch ' + f.key + '"><span class="pl" style="background:' + c + ';box-shadow:0 0 8px ' + c + '"></span><span class="pk"><i></i></span><span class="pn">' + f.key + '</span></button>'; }).join('') + '</div>' +
     '<span class="note">' + ((pv || nx) ? 'Preset −/+ on ' + [pv ? 'CC ' + pv.n : '', nx ? 'CC ' + nx.n : ''].filter(Boolean).join(' / ') : 'Program Change 1–' + Math.min(128, PSN()) + ' recalls the presets') + '</span>' +
-    (hasSnap() ? '<div class="segw"><span>Switch ' + fsSel + ' recalls</span><div class="seg" id="fmode"><button class="' + (isSn ? 'on' : '') + '" data-m="snap">A snapshot</button><button class="' + (isSn ? '' : 'on') + '" data-m="blocks">Blocks on/off</button></div></div>' : '') +
-    (isSn ? '<div class="box"><div class="row"><b class="g sp" style="font-size:18px">Snapshot ' + 'ABCD'[si] + '</b>' + (SN.act === si ? '<span class="tag" style="background:color-mix(in srgb,var(--st) 14%,transparent);color:var(--st)">ACTIVE</span>' : '') + '</div>' +
+    '<div class="segw"><span>Switch ' + fsSel + ' does</span><div class="seg" id="fmode">' + (hasSnap() ? '<button class="' + (isSn ? 'on' : '') + '" data-m="snap">Snapshot</button>' : '') + '<button class="' + (isSn || isTap ? '' : 'on') + '" data-m="blocks">Blocks on/off</button><button class="' + (isTap ? 'on' : '') + '" data-m="tap">Tap tempo</button></div></div>' +
+    (isTap ? '<div class="box"><b class="g" style="font-size:18px">Switch ' + fsSel + ' taps the tempo</b><span class="note">Tap at least twice. Delays and modulations with Sync follow the tempo; a delay without Sync takes the quarter note. The tempo is saved with the preset.</span></div>' : isSn ? '<div class="box"><div class="row"><b class="g sp" style="font-size:18px">Snapshot ' + 'ABCD'[si] + '</b>' + (SN.act === si ? '<span class="tag" style="background:color-mix(in srgb,var(--st) 14%,transparent);color:var(--st)">ACTIVE</span>' : '') + '</div>' +
       '<input class="sninp" id="snname" maxlength="12" placeholder="Name, e.g. Solo" value="' + esc(SN.names[si] || '') + '" aria-label="Snapshot name">' +
       '<div class="row"><button class="sp" id="snrec"' + (SN.act === si ? ' disabled' : '') + '>Recall it now</button><button class="sp" id="sncopy"' + (SN.act === si ? ' disabled' : '') + '>Copy the current sound here</button></div>' +
       '<span class="note">A snapshot remembers which blocks and amps are on, the models and settings, the amp levels and the path mix. While it is active, every change goes into it. Order, paths, captures and IRs belong to the preset. Save the preset to keep the snapshots.</span></div>'
     : '<div class="row"><b class="g sp" style="font-size:18px">Switch ' + fsSel + ' turns on and off</b><span class="small mut">' + (cur.blks.length === 1 ? '1 block' : cur.blks.length + ' blocks') + '</span></div>' +
     '<div class="tg">' + blks.map(b => '<button class="tgb' + (cur.blks.includes(b) ? ' on' : '') + '" style="--c:' + cvar(b) + '" data-tb="' + b + '" aria-pressed="' + cur.blks.includes(b) + '">' + svg(BLK[b].i) + '<span>' + esc(BLK[b].name) + '</span><span class="ck">' + svg('check') + '</span></button>').join('') + '</div>' +
     '<span class="note">Pick more than one to switch them together, for example Drive 2 + Delay for a solo. Only blocks in the chain are listed.</span>') +
-    (hasSnap() && G4.some(f => f.snap === null) ? '<button id="snall">Use snapshots on all four switches</button>' : '') +
+    (hasSnap() && G4.some(f => f.snap === null && f.tap < 0) ? '<button id="snall">Use snapshots on all four switches</button>' : '') +
     '<div class="row"><button class="sp" id="fpen">' + (MD && MD.pen ? 'Turn the Bluetooth footswitch off' : 'Turn the Bluetooth footswitch on') + '</button><button id="fscan">Search</button></div>' +
     '<button id="fmidi">Wired MIDI and custom mappings</button>';
   const E = $('#fin'); E.innerHTML = h;
@@ -2114,6 +2171,7 @@ function renderSetup(){
   }
   const cl = PK['io.cl']; $('#scl').classList.toggle('on', !!(cl && cl.v > 0.5));
   const nt = PK['io.notch']; $('#rnotch').classList.toggle('hid', !nt); $('#snotch').classList.toggle('on', !!(nt && nt.v > 0.5));
+  renderUsb();
   $('#rengv').textContent = isOn('amp2') ? 'Lite (two amps)' : engCur === 2 ? 'Lite' : 'Full';
   $('#rmidiv').textContent = MD ? MD.map.filter(Boolean).length + ' of ' + MD.map.length : '–';
   $('#rfsv').textContent = MD && MD.ped === 3 ? 'connected' : MD && MD.pen ? 'not connected' : 'off';
@@ -2124,6 +2182,28 @@ $('#sgain').onchange = () => setTimeout(() => { if (dragging === 'in.gain') drag
 $('#boeq').onclick = () => { ['oeq.lo', 'oeq.mid', 'oeq.mf', 'oeq.hi'].forEach(k => { if (PK[k] && PK[k].v) setv(k, 0); }); setTimeout(() => { $('#soeq')._h = null; renderSetup(); }, 80); };
 $('#scl').onclick = () => { const p = PK['io.cl']; if (p) setv('io.cl', p.v > 0.5 ? 0 : 1); };
 $('#snotch').onclick = () => { const p = PK['io.notch']; if (p) setv('io.notch', p.v > 0.5 ? 0 : 1); };
+/* ---- scheda audio USB (firmware v53e): accesa o spenta dal riavvio, il resto subito ---- */
+let USB = null;
+async function loadUsb(){ try { USB = await getj('/api/usb'); if (view === 'setup' && !dragging) renderUsb(); } catch(e) {} }
+function renderUsb(){
+  const uo = PK['usb.on'];
+  $('#cusb').classList.toggle('hid', !uo); if (!uo) return;
+  const want = uo.v > 0.5, run = !!(S && S.ua);
+  $('#susb').classList.toggle('on', want);
+  $('#rusbrb').classList.toggle('hid', want === run);
+  $('#usbrbt').textContent = want ? 'Restart the pedal to turn the interface on' : 'Restart the pedal to turn the interface off';
+  $('#usbsub').textContent = !run ? 'Off · micro-USB port, 48 kHz 24 bit' : USB && USB.usb_mounted ? 'Connected' + (USB.usb_play || USB.usb_rec ? ' · streaming' : '') + ' · 48 kHz 24 bit' : 'On · waiting for a computer or iPad';
+  $('#usbopt').classList.toggle('hid', !run);
+  segFor('#susrc', 'usb.src', ['Wet', 'Dry', 'Wet + Dry']);
+  const ra = PK['usb.reamp']; $('#sreamp').classList.toggle('on', !!(ra && ra.v > 0.5));
+  if (PK['usb.dir'] && !(dragging && /^usb\./.test(dragging))){
+    if (put($('#susbmix'), sliderHTML('usb.dir', 'Pedal on outputs', '0', '', '100%', 'var(--amp)') + sliderHTML('usb.ret', 'Computer on outputs', '0', '', '100%', 'var(--mod)')))
+      $('#susbmix').querySelectorAll('input[type=range][data-r]').forEach(r => { rangeFill(r); bindRange(r, r.dataset.r); });
+  }
+}
+$('#susb').onclick = () => { const p = PK['usb.on']; if (p) setv('usb.on', p.v > 0.5 ? 0 : 1); };
+$('#sreamp').onclick = () => { const p = PK['usb.reamp']; if (!p) return; if (p.v < 0.5 && !confirm('Reamp: the guitar input is replaced by the computer playback (left channel) until you turn it off. Continue?')) return; setv('usb.reamp', p.v > 0.5 ? 0 : 1); };
+$('#busbrb').onclick = () => { if (!confirm('Restart the pedal now? The sound stops for a few seconds.')) return; getj('/api/reboot').then(() => toast('Restarting…')).catch(() => {}); };
 $('#brefc').onclick = async () => {
   if (!confirm('Input calibration: for 3 seconds keep the guitar silent (volume knob at 0), with nothing connected to the reference input. Proceed?')) return;
   try { await fetch('/api/refcal'); toast('Calibrating: 3 seconds of silence…'); setTimeout(() => toast('Input calibration done (result on the pedal display)'), 4200); } catch(e) {}
@@ -2137,7 +2217,7 @@ $('#rfs').onclick = () => openFs('A');
 
 /* ===================== MIDI ===================== */
 const MTYPE = ['CC', 'PC', 'Note'], MMODE = ['toggle on press', 'follow (>=64 on)', 'continuous (pedal)', 'any value'];
-const MACT = ['Block on/off', 'Parameter', 'Preset', 'Preset +1', 'Preset -1', 'Mute', 'Delay tap tempo', 'Tuner', 'Snapshot'];
+const MACT = ['Block on/off', 'Parameter', 'Preset', 'Preset +1', 'Preset -1', 'Mute', 'Tap tempo', 'Tuner', 'Snapshot'];
 async function midiApi(u){ try { const d = await getj(u); if (d.err) toast(d.err); else if (d.map) { MD = d; renderMidi(); renderFs(); if (view === 'setup') renderSetup(); if (view === 'play') renderPlay(); if (view === 'chain' && !dragging) renderChain(); if (edB && !dragging) renderEditor(); } return d; } catch(e) {} }
 function openMidi(){ $('#sheet').classList.remove('hid'); renderMidi(); midiApi('/api/midi'); }
 function renderMidi(){
@@ -2290,6 +2370,7 @@ async function poll(){
     if (saveWait && s.save !== -1) { saveWait = false; toast(s.save ? 'Settings saved' : 'Save error'); }
     const sig = JSON.stringify([s.v, psCur, engCur, capAct]);
     if (changed || sig !== lastSig) { lastSig = sig; if (!dragging) { refresh(); if (edB) renderEditor(); } }
+    if (view === 'setup' && PK['usb.on'] && pollN % 4 === 0) loadUsb();
     if (++pollN % 3 === 0 && !tOpen) { try { const t = await getj('/api/tuner'); if (t.on) openTuner(true); tref = Math.round(t.ref); } catch(e) {} }
   } catch(e){
     if (++fails > 2 && !APP) { $('#cled').className = 'led'; $('#ctext').textContent = 'offline'; }

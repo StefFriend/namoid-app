@@ -10,8 +10,8 @@ android {
         applicationId = "it.amico.namoid"
         minSdk = 26
         targetSdk = 34
-        versionCode = 19
-        versionName = "3.14"
+        versionCode = 20
+        versionName = "3.15"
     }
     buildTypes {
         release { isMinifyEnabled = false }
